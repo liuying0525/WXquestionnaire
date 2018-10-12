@@ -1,0 +1,40 @@
+{
+  "pages": [
+    "pages/projectList/projectList",
+    "pages/myproject/myproject",
+    "pages/userInfo/userInfo",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "问卷调查",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "color": "#7e8aa0",
+    "selectedColor": "#333333",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/myproject/myproject",
+        "text": "我的项目",
+        "iconPath": "images/tabBar/xm_nor.png",
+        "selectedIconPath": "images/tabBar/xm_pr.png"
+      },
+      {
+        "pagePath": "pages/projectList/projectList",
+        "text": "项目列表",
+        "iconPath": "images/tabBar/lb_nor.png",
+        "selectedIconPath": "images/tabBar/lb_pr.png"
+      },
+      {
+        "pagePath": "pages/userInfo/userInfo",
+        "text": "账户信息",
+        "iconPath": "images/tabBar/zh_nor.png",
+        "selectedIconPath": "images/tabBar/zh_pr.png"
+      }
+    ]
+  }
+}
