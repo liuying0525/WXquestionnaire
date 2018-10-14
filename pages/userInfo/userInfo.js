@@ -1,6 +1,6 @@
 //index.js
 //获取应用实例
-const app = getApp();
+const app = getApp()
 
 Page({
 	data: {
@@ -8,12 +8,6 @@ Page({
 		userInfo: {},
 		hasUserInfo: false,
 		canIUse: wx.canIUse('button.open-type.getUserInfo')
-	},
-	//事件处理函数
-	bindViewTap: function() {
-		wx.navigateTo({
-			url: '../logs/logs'
-		})
 	},
 	onLoad: function() {
 		if(app.globalData.userInfo) {
@@ -45,6 +39,7 @@ Page({
 	},
 	getUserInfo: function(e) {
 		var pdata = e.detail.userInfo;
+		var that = this;
 		app.globalData.userInfo = pdata;
 		wx.login({
 			success: (data) => {
@@ -62,8 +57,18 @@ Page({
 								data: pdata,
 								success: function(data) {
 									app.globalData.userOpenid = data.data.data.openid;
-									wx.navigateBack({
-										dalta: 1
+									wx.setStorageSync("userOpenid", data.data.data.openid);
+									that.setData({
+										userInfo: app.globalData.userInfo,
+										hasUserInfo: true
+									});
+									//									wx.navigateBack({
+									//										delta: 1
+									//									});
+									wx.switchTab({
+										url: '/pages/projectList/projectList',
+										fail: function() {
+										}
 									});
 								}
 							});
@@ -72,7 +77,6 @@ Page({
 				}
 			}
 		});
-
 
 		//		if(getCurrentPages()[0].route == "pages/userInfo/userInfo") {
 		//			wx.switchTab({

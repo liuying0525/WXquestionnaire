@@ -1,7 +1,7 @@
 <view class='classify_other_category'>
 <view class='goodsCell_flex'>
-  <view class='classify_other_category_cell' wx:for="{{secondCateGoryList}}" wx:key="secondCateGoryListId">
-    <image src='{{item.checkicon}}' />
+  <view class='classify_other_category_cell' wx:for="{{leftOtherArrayList}}" wx:key="rightArrayListId">
+  
     <view class='classify_other_category_cell_text'>{{item}}</view>
   </view>
 </view>

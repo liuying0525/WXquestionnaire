@@ -3,7 +3,8 @@
     "pages/projectList/projectList",
     "pages/myproject/myproject",
     "pages/userInfo/userInfo",
-    "pages/logs/logs"
+    "pages/logs/logs",
+    "pages/question/question"
   ],
   "window": {
     "backgroundTextStyle": "light",

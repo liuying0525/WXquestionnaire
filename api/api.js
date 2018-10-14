@@ -1,12 +1,15 @@
 const app = getApp();
 const host = 'http://218.81.97.41:58080/';
-const wxRequest = (params, url) => {
+const wxRequest = (params, url, message) => {
+	message = message || '加载中'
 	wx.showToast({
-		title: '加载中',
+		title: message,
 		icon: 'loading'
 	})
-	params.data = {};
-	params.data.openid = app.globalData.userOpenid;
+
+	params.data = params.data || {}
+	//	params.data.openid = app.globalData.userOpenid;
+	params.data.openid = wx.getStorageSync("userOpenid") || "";
 	wx.request({
 		url: url,
 		data: params.data || {},
@@ -28,8 +31,7 @@ const wxRequest = (params, url) => {
 			params.complete && params.complete(res)
 		}
 	})
-	
-	
+
 	//return new Promise(res,rej)
 }
 
@@ -42,7 +44,7 @@ const wxRequest = (params, url) => {
 // const getCategoryListByMenuId = (params) => wxRequest(params, host + 'Goods/GetCategoryListByMenuId')
 
 const getAppRegister = (params) => wxRequest(params, host + "Api/User/register")
-const getAppSubjectLst = (params) => wxRequest(params, host + "Api/Subject/lst")
+const getAppSubjectLst = (params, message) => wxRequest(params, host + "Api/Subject/lst", message)
 
 module.exports = {
 	getAppRegister,

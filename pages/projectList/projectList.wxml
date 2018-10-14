@@ -2,10 +2,10 @@
 <view class='classify_page'>
   <view class='classify_page_left' style="height:{{deviceHeight}}px">
     <import src="templates/recommendeds.wxml" />
-    <template is="classify_recommendeds_left" data="{{leftArray:firstCategoryList}}" />
+    <template is="classify_recommendeds_left" data="{{type:sName,leftArray:firstCategoryList}}" />
   </view>
-  <view class='classify_page_right' style="height:{{deviceHeight}}px">
+  <view class='classify_page_right' style="height:{{deviceHeight}}px" >
     <import src="templates/recommendeds.wxml"/>
-    <template is="classify_recommendeds_right" data="{{feed:feed,type:categoryType,leftOtherlist:leftOtherArray,rightBigImageArray:rightBigImageArray}}" />
+    <template is="classify_recommendeds_right" data="{{type:sName,rightArray:secondCateGoryList}}" />
   </view>
 </view>

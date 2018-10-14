@@ -1,0 +1,39 @@
+<!--pages/question/question.wxml-->
+<view class='question_page'>
+  <view class="question_page_top">
+    <text>咖啡市场问卷调查</text>
+    <text>本问卷实行匿名制度</text>
+  </view>
+  <view class='question'>
+    <view class='question_bigitem' wx:for="{{qitem}}" wx:key="{{qitem}}">
+      <view class='question_bigitem_top ' bindtap='tagitem' data-index="{{index}}">
+        <text class='bigitemtitle'>{{item.title}}</text>
+        <block wx:if="{{item.isShow==true}}">
+          <image src='../../../images/single_d.png'></image>
+        </block>
+        <block wx:else>
+          <image src='../../../images/single_u.png'></image>
+        </block>
+      </view>
+      <view class='bigitem_content {{item.isShow==true?"":"itemhidden"}}' wx:for="{{item.items}}" wx:for-item="oitem" wx:key="{{oitem}}">
+        <view class='smallitem'>
+          <text>{{oitem.title}}</text>
+          <block wx:if="{{oitem.type=='radio'}}">
+            <radio-group class="radio-group" bindchange="radioChange">
+              <label class="radio" wx:for="{{oitem.options}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
+                <radio value="{{oitemo.name}}" checked="{{oitemo.checked}}" />{{oitemo.value}}
+              </label>
+            </radio-group>
+          </block>
+          <block wx:if="{{oitem.type=='checkbox'}}">
+            <checkbox-group bindchange="checkboxChange">
+              <label class="checkbox" wx:for="{{oitem.options}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
+                <checkbox value="{{oitemo.name}}" checked="{{oitemo.checked}}" />{{oitemo.value}}
+              </label>
+            </checkbox-group>
+          </block>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

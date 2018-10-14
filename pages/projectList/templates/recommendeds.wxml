@@ -1,8 +1,23 @@
 <template name="classify_recommendeds_right">
-  <include src="../includes/categoryPage.wxml"/>
+<scroll-view scroll-y >
+    <block wx:for="{{rightArray}}" wx:key="{{index}}">  
+       <view class="classify_recommendeds_right" bindtap="tapName">
+      
+        <view class='recommendeds_right_left'>
+        <text>{{item.sub_name}}</text>
+        <text>进度:{{item.answer}}</text>
+        <text>状态：{{item.status==2?"可编辑":"已关闭"}}</text>
+        </view>
+      <image class='recommendeds_right_right' wx:if="{{item.status==2}}" src="../../../images/edit.png" class="editicon">
+      </image>
+   
+      
+       </view>
+  </block>
+   </scroll-view>
 </template>
 <template name="classify_recommendeds_left">
-  <block wx:for="{{leftArray}}" wx:key="leftArrayitemid">
- <view class="classify_recommendeds_left"  id="index" data-id="{{index}}" bindtap="tapCategory">{{item}}</view>
+  <block wx:for="{{leftArray}}" wx:key="{{index}}">
+ 	<view class="classify_recommendeds_left {{item==type?'active':''}}"  data-id="{{index}}" data-name="{{item}}" bindtap="tapCategory">{{item}}</view>
   </block>
 </template>
