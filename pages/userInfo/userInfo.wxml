@@ -1,5 +1,6 @@
 <!--index.wxml-->
 <view class="container">
+  <image src='../../images/userinfobg.png' class='userinfobg'></image>
   <view class="userinfo">
     <button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
     <block wx:else>
@@ -7,7 +8,34 @@
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
     </block>
   </view>
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
+  <view class="usermotto" wx:for="{{uitem}}" wx:key="{{index}}">
+    <block wx:if="{{index==0}}" class="bigitembg">
+      
+        <view bindtap='tagitem' data-index="{{index}}">
+          <image src='../../images/person_blue.png' wx:if="{{item.isShow==true}}"></image>
+           <image src='../../images/person.png' wx:else></image>
+          <text>{{item.title}}</text>
+        </view>
+        <view wx:if="{{item.isShow==true}}" class='showcontent'>
+          <text>用户权限等级：{{item.userLevel}}</text>
+          <view>
+           电话号码：<input type="number" placeholder='请输入您的电话' value="{{item.iphone}}" confirm-type="done" bindblur='bindIphoneInput'></input> </view>
+          <view> 地址： <input type="text" placeholder='请输入您的地址' value="{{item.address}}" confirm-type="done" bindblur='bindAddressInput'></input>
+          </view>
+        </view>
+     
+    </block>
+    <block wx:else>
+      <view bindtap='tagitem' data-index="{{index}}">
+        <image src='../../images/company_blue.png' wx:if="{{item.isShow==true}}"></image>
+        <image src='../../images/company.png' wx:else></image>
+        <text>{{item.title}}</text>
+      </view>
+      <view wx:if="{{item.isShow==true}}" class="showcontent">
+       
+          <text>{{item.content}}</text>
+
+      </view>
+    </block>
   </view>
 </view>

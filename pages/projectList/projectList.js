@@ -14,14 +14,13 @@ Page({
 		secondCateGoryList: [], //二级
 		leftOtherArray: [], //每个一级分类下面的二级分类
 		categoryType: 0,
-		dataAll: {},
-		sName: "",
-		page_size: 10,
-		page_current: 1,
-		page_total: 0,
-		dataLeft: [],
-		isEnd: true,
-    itemStatus:""
+		sName: "", //选中区域
+		page_size: 6, //每页显示条数
+		page_current: 1, //当前页
+		page_count: 1, //总页数
+		dataLeft: [], //左边区域
+		dataRight: [], //右边题列表
+		isMore: true //true是有更多数据，false是没有更多数据
 	},
 	/**
 	 * 生命周期函数--监听页面加载
@@ -37,6 +36,7 @@ Page({
 				});
 			}
 		});
+
 	},
 	/**
 	 * 生命周期函数--监听页面初次渲染完成
@@ -44,7 +44,9 @@ Page({
 	onReady: function() {
 
 	},
-
+	onPageScroll: function(e) {
+		// console.log(e.scrollTop);
+	},
 	/**
 	 * 生命周期函数--监听页面显示
 	 */
@@ -53,25 +55,32 @@ Page({
 		this.initialization("加载中");
 	},
 	initialization: function(msg) {
-		this.getData(msg).then(data => {
-			var arrary1 = this.getLeftArrary(data);
-			var carrary = [];
-			for(var k = 0; k < this.data.page_current * this.data.page_size; k++) {
-				arrary1[k] && carrary.push(arrary1[k]);
-			}
-			var isUp = this.data.page_total <= this.data.page_current;
+		this.getLeftArrary().then((res) => {
+			var leftArrary = res;
 			this.setData({
-				sName: carrary[0],
-				page_total: Math.ceil(arrary1.length / this.data.page_size),
-				isEnd: isUp,
-				dataLeft: arrary1
+				firstCategoryList: res,
+				sName: this.data.sName || leftArrary[0]
 			});
-			var arrary2 = this.getRightArry(this.data.sName);
-			this.setData({
-				firstCategoryList: carrary,
-				secondCateGoryList: arrary2
+			this.getRightArrary(msg).then((data) => {
+				this.setData({
+					secondCateGoryList: data
+				});
 			});
 		});
+
+		//		this.getData(msg).then(data => {
+		//			// var arrary1 = this.getLeftArrary();
+		//
+		//			var arrary2 = [];
+		//			// for (var k = 0; k < this.data.page_current * this.data.page_size; k++) {
+		//
+		//			var arrary2 = this.getRightArry();
+		//			// debugger
+		//			this.setData({
+		//				// firstCategoryList: carrary,
+		//				secondCateGoryList: arrary2
+		//			});
+		//		});
 	},
 	/**
 	 * 生命周期函数--监听页面隐藏
@@ -86,89 +95,108 @@ Page({
 	onUnload: function() {
 
 	},
-	getRightArry: function(name) {
-		return this.data.dataAll[name];
-	},
-	updateCategoryListData: function(categoryListArray) {
+	// updateCategoryListData: function(categoryListArray) {
+	// 	var that = this;
+	// 	var leftArray = [];
+	// 	var rightArray = [];
+	// 	for(let i in categoryListArray) {
+	// 		var object = categoryListArray[i];
+	// 		leftArray = leftArray.concat(i);
+	// 		for(let j = 0; j < object.length; j++) {
+	// 			rightArray = rightArray.concat(object[j]);
+	// 		}
+	// 	}
 
-		//		var leftArray =this.firstCategoryList;
-		//		var rightArray = this.secondCateGoryList;
-		//		for(let i in categoryListArray) {
-		//			var object = categoryListArray[i];
-		//			leftArray = leftArray.concat(i);
-		//			for(let j = 0; j < object.length; j++) {
-		//				rightArray = rightArray.concat(object[j]);
-		//			}
-		//		}
-		//		
-		//		return;
-		var that = this;
-		var leftArray = [];
-		var rightArray = [];
+	// 	if(that.data.page == 1) {
+	// 		rightArray = []
+	// 	}
 
-		// var leftOtherlist = this.data.leftOtherArray;
-		for(let i in categoryListArray) {
-			var object = categoryListArray[i];
-			leftArray = leftArray.concat(i);
-			for(let j = 0; j < object.length; j++) {
-				rightArray = rightArray.concat(object[j]);
-			}
-		}
-		// for(let i = 0; i < categoryListArray.length; i++) {
-		// 	var object = categoryListArray[i];
-		// 	if(object.menu == '1') {
-		// 		leftArray.push(object);
-		// 	} else if(object.menu == '2') {
-		// 		rightArray.push(object);
-		// 	}
-		// }
-
-		if(that.data.page == 1) {
-			rightArray = []
-		}
-
-		if(rightArray.length > that.select.size) {
-			that.select.page++
-				that.select.isEnd = false;
-		} else {
-			that.select.isEnd = true;
-		}
-		that.setData({
-			firstCategoryList: leftArray,
-			secondCateGoryList: rightArray,
-			// leftOtherArray: leftOtherlist
-		})
-	},
+	// 	if(rightArray.length > that.select.size) {
+	// 		that.select.page++
+	// 			that.select.isEnd = false;
+	// 	} else {
+	// 		that.select.isEnd = true;
+	// 	}
+	// 	that.setData({
+	// 		firstCategoryList: leftArray,
+	// 		secondCateGoryList: rightArray,
+	// 	})
+	// },
 	getData: function(massege) {
 		var _this = this;
-		if(!_this.data.isEnd) return;
+
+		// if(!_this.data.isEnd) return;
+		this.getLeftArrary().then(data => {
+
+			return new Promise((resolve, reject) => {
+
+				var isUp = _this.data.page_total > _this.data.page_current;
+
+				api.getAppSubjectLst({
+					data: {
+						area_belong: data[0],
+						p: _this.data.page_current,
+						pageSize: 6
+					},
+					success: (res) => {
+
+						_this.setData({
+							dataAll: res.data.data.data,
+						});
+						resolve(res.data.data);
+					},
+					fail: res => {
+						reject(res);
+					}
+				}, massege);
+			});
+
+		})
+
+	},
+	// getLeftArrary: function(dataAll) {
+	//   var leftArrary = [];
+	//   for (var keyName in dataAll) {
+	//     leftArrary.push(keyName);
+	//   }
+	//   return leftArrary;
+	// },
+	getRightArrary: function(msg) {
+		var _this = this;
 		return new Promise((resolve, reject) => {
 			api.getAppSubjectLst({
+				data: {
+					area_belong: _this.data.sName,
+					p: _this.data.page_current,
+					pageSize: _this.data.page_size
+				},
 				success: (res) => {
-          var itemstatus = res.data.data.status
-          if(itemstatus=="2"){
-            itemstatus="可编辑"
-          }else{
-            itemstatus="已关闭"
-          }
+					var pageCount = res.data.data.pageInfo.page;
+					var isM = pageCount > _this.data.page_current;
 					_this.setData({
-						dataAll: res.data.data,
-            itemStatus: itemstatus
+						page_count: pageCount,
+						isMore: isM
 					});
+					resolve(res.data.data.data);
+				},
+				fail: res => {
+					reject(res);
+				}
+			}, msg);
+		});
+	},
+	getLeftArrary: function(msg) {
+		var _this = this;
+		return new Promise((resolve, reject) => {
+			api.getAppAreaInfo({
+				success: (res) => {
 					resolve(res.data.data);
 				},
 				fail: res => {
 					reject(res);
 				}
-			}, massege);
-		});
-	},
-	getLeftArrary: function(dataAll) {
-		var leftArrary = [];
-		for(var keyName in dataAll) {
-			leftArrary.push(keyName);
-		}
-		return leftArrary;
+			}, msg);
+		})
 	},
 	tapCategory: function(event) {
 		var that = this;
@@ -176,59 +204,97 @@ Page({
 			categoryType: event.target.dataset.id,
 			sName: event.target.dataset.name,
 		});
-		var mutableTemArray = this.getRightArry(this.data.sName);
 		that.setData({
-			secondCateGoryList: mutableTemArray
+			page_size: 6,
+			page_current: 1,
+			page_total: 0,
+			isEnd: true,
+			secondCateGoryList: []
 		});
+		this.getRightArrary().then(data => {
+			that.setData({
+				secondCateGoryList: data
+			});
+		});
+		// 
+		// var mutableTemArray=[];
+		//		var mutableTemArray = this.getRightArry();
+		// debugger
+		// for (var i = 0; i < 30; i++) {
+
+		// mutableTemArray.push(this.getRightArry(this.data.sName)[i])
+
+		// }
+		//		that.setData({
+		//			secondCateGoryList: mutableTemArray
+		//		});
 	},
 	/**
-	 * 页面相关事件处理函数--监听用户下拉动作
+	 * 页面相关事件处理函数--监听用户下拉动作  上拉应该是刷新吧？
 	 */
 	onPullDownRefresh: function() {
 		this.setData({
-			dataAll: {},
-			sName: "",
-			page_size: 10,
+			page_size: 6,
 			page_current: 1,
 			page_total: 0,
-			isEnd: true
+			isEnd: false,
+			secondCateGoryList: []
 		});
-		this.initialization("正在刷新数据");
+		this.initialization();
+		wx.stopPullDownRefresh();
 	},
-
 	/**
 	 * 页面上拉触底事件的处理函数
 	 */
 	onReachBottom: function() {
-		if(!this.data.isEnd) {
+		console.log("this.data.isMore=" + this.data.isMore);
+		if(!this.data.isMore) {
 			return wx.showToast({
 				title: '没有更多数据'
 			});
 		}
-		wx.showLoading({
-			title: '加载更多数据'
-		});
-		var isUp = this.data.page_total <= this.data.page_current++;
+		var cpage = this.data.page_current + 1;
 		this.setData({
-			page_current: this.data.page_current++,
-			isEnd: isUp
+			page_current: cpage,
 		});
-		var carrary = [];
-		for(var k = 0; k < this.data.page_current * this.data.page_size; k++) {
-			this.data.dataLeft[k] && carrary.push(this.data.dataLeft[k]);
-		}
-		setTimeout(() => {
+		this.getRightArrary("加载更多数据").then(data => { //
 			this.setData({
-				firstCategoryList: carrary,
+				secondCateGoryList: this.data.secondCateGoryList.concat(data)
 			});
-			wx.hideLoading();
-		}, 2000);
+		});
+		//		var isUp = this.data.page_total > this.data.page_current++;
+		//		this.setData({
+		//			page_current: this.data.page_current,
+		//			isEnd: isUp
+		//		});
+		//		this.getData("加载更多数据")
+		//		var carrary = [];
+		// for(var k = 0; k < this.data.page_current * this.data.page_size; k++) {
+		// 	// this.data.dataLeft[k] && carrary.push(this.data.dataLeft[k]);
+		//   var dataleftitem = this.data.dataLeft[k];
+		//   dataleftitem && carrary.push(this.getRightArry(this.data.sName));
+		// }
+		// debugger
+		//		carrary.push(this.getRightArry())
+		//		// setTimeout(() => {
+		//		// 	this.setData({
+		//		// 		firstCategoryList: carrary,
+		//		// 	});
+		//		// 	wx.hideLoading();
+		//		// }, 1000);
+		//		setTimeout(() => {
+		//			this.setData({
+		//				secondCateGoryList: carrary,
+		//			});
+		//			wx.hideLoading();
+		//		}, 1000);
 	},
-tapName:function(){
-	wx.navigateTo({
-  url: '../question/question'
-})
-},
+	tapName: function(e) {
+		var uid = e.currentTarget.dataset.uid;
+		wx.navigateTo({
+			url: '../question/question?uid=' + uid
+		})
+	},
 	/**
 	 * 用户点击右上角分享
 	 */

@@ -1,0 +1,4 @@
+<view class="retailStore">  
+  <button bindtap='btnchoose' type='primary'>获取当前位置</button>
+  <view>{{addres}}</view>
+</view>

@@ -9,17 +9,21 @@
 }
 
 .classify_page_left {
-  width: 18%;
-  height: 100%;
+  width: 150rpx;
+  /* height: 100%; */
+  position: fixed;
+  overflow-y: auto;
   background-color: white;
+  z-index: 4;
 }
 
 .classify_page_right {
   width: 82%;
   height: 100%;
   background-color: #f4f5f7;
-  margin-left: 10rpx;
+  margin-left: 152rpx;
   margin-right: 10rpx;
+
 }
 
 /*template  css*/
@@ -144,3 +148,4 @@ width:35rpx;
 height:35rpx;
 padding-bottom:15rpx;
 }
+

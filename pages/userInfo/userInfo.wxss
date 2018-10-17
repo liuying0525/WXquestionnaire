@@ -3,6 +3,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: absolute;
+  left:50%;
+  top:10%;
+  transform: translate(-50%);
 }
 
 .userinfo-avatar {
@@ -16,6 +20,77 @@
   color: #aaa;
 }
 
-.usermotto {
-  margin-top: 200px;
+.usermotto view image {
+  /* margin-top: 200px; */
+
+    display: flex;
+  align-items: center;
+}
+.container{
+  padding-top:50rpx;
+}
+.usermotto{
+  display:flex;
+width:100%;
+border-bottom:1px solid #999;
+padding:30rpx 0 30rpx 50rpx;
+
+box-sizing:border-box;
+flex-direction:column;
+
+
+}
+.ccontent{
+  display: block
+}
+.userinfobg{
+  width:100%;
+  height:150px;
+}
+.usermotto text{
+  font-size:42rpx;
+
+}
+
+view[data-index="0"] image{
+  width:48rpx;
+  height:38rpx;
+  margin-right:20rpx;
+
+}
+
+view[data-index="1"] image{
+
+  width:58rpx;
+  height:50rpx;
+  margin-right:16rpx;
+margin-left:-6rpx;
+
+}
+.usermotto>view{
+  width:100%;
+display:flex;
+justify-content:row;
+
+}
+.usermotto>view[data-index]{
+  align-items:center;
+
+}
+.showcontent{
+  display: flex;
+  flex-direction: column;
+  font-size:38rpx;
+  color:#666;
+  padding-top:30rpx;
+}
+.showcontent text{
+  font-size:38rpx;
+   padding:20rpx 0;
+}
+
+.showcontent>view{
+    display: flex;
+  flex-direction: row;
+   padding:10rpx 0;
 }

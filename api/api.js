@@ -45,8 +45,14 @@ const wxRequest = (params, url, message) => {
 
 const getAppRegister = (params) => wxRequest(params, host + "Api/User/register")
 const getAppSubjectLst = (params, message) => wxRequest(params, host + "Api/Subject/lst", message)
+const getAppAnswerLst = (params) => wxRequest(params, host + "Api/Answer/lst")
+const getAppSubInfo = (params) => wxRequest(params, host + "Api/Subject/getSubInfo")
+const getAppAreaInfo = (params,message) => wxRequest(params, host + "Api/Subject/getAreaInfo",message)
 
 module.exports = {
 	getAppRegister,
-	getAppSubjectLst
+	getAppSubjectLst,
+	getAppAnswerLst,
+	getAppSubInfo,
+	getAppAreaInfo
 }
