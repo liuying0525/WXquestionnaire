@@ -100,9 +100,9 @@ Page({
     var type = this.data.currentTab;
     return new Promise((resolve, reject) => {
       api.getAppAnswerLst({
-        data: { p: _this.select.page, pageSize: _this.select.size, statu: type },
+        data: { p: _this.select.page, pageSize: _this.select.size, status: type },
         success: (res) => { 
-            var content = res.data.data        
+            var content = res.data.data.data        
               _this.setData({
                 sendList: (_this.data.sendList).concat(content)
               })

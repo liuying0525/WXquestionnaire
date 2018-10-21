@@ -1,5 +1,5 @@
 const app = getApp();
-const host = 'http://218.81.97.41:58080/';
+const host = 'http://222.71.19.89:58080/';
 const wxRequest = (params, url, message) => {
 	message = message || '加载中'
 	wx.showToast({
@@ -47,12 +47,14 @@ const getAppRegister = (params) => wxRequest(params, host + "Api/User/register")
 const getAppSubjectLst = (params, message) => wxRequest(params, host + "Api/Subject/lst", message)
 const getAppAnswerLst = (params) => wxRequest(params, host + "Api/Answer/lst")
 const getAppSubInfo = (params) => wxRequest(params, host + "Api/Subject/getSubInfo")
-const getAppAreaInfo = (params,message) => wxRequest(params, host + "Api/Subject/getAreaInfo",message)
+const getAppAreaInfo = (params) => wxRequest(params, host + "Api/Subject/getAreaInfo")
+const getAppAnswerSave = (params) => wxRequest(params, host + "Api/Answer/save")
 
 module.exports = {
 	getAppRegister,
 	getAppSubjectLst,
 	getAppAnswerLst,
 	getAppSubInfo,
-	getAppAreaInfo
+	getAppAreaInfo,
+  getAppAnswerSave
 }

@@ -25,3 +25,128 @@ height:100rpx;
 .noneimage text{
   display: block
 }
+
+
+
+/*template  css*/
+
+.classify_recommendeds_right {
+  /* background-color: #f4f5f7; */
+  background-color:white;
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  padding:20rpx 20rpx;
+  margin-bottom:1px;
+  box-sizing: border-box;
+ font-size:32rpx;
+ align-items:flex-end;
+  
+}
+.classify_recommendeds_right text{
+  margin:8rpx 0;
+}
+.recommendeds_right_left{
+   display: flex;
+  flex-flow: column;
+}
+.recommended_item_text {
+  font-size: 25rpx;
+  padding: 10rpx 0 10rpx 10rpx;
+}
+
+.recommended_item_content {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  background-color: white;
+  padding-left: 10rpx;
+  padding-top: 20rpx;
+  padding-bottom: 20rpx;
+}
+
+
+
+.recommended_item_content_cell image {
+  width: 145rpx;
+  height: 145rpx;
+}
+
+.recommended_item_content_cell_text {
+  font-size: 25rpx;
+  text-align: center;
+  height: 30rpx;
+  line-height: 30rpx;
+}
+
+.classify_recommendeds_left {
+  height: 90rpx;
+  width: 100%;
+  font-size: 30rpx;
+  text-align: center;
+  line-height: 80rpx;
+  background-color: white;
+  border-bottom-style: solid;
+  border-bottom-width: 6rpx;
+  border-bottom-color: #f4f5f7;
+}
+
+/*其他（非一级）一级分类的二级分类*/
+
+.classify_other_category {
+  width: 100%;
+  background-color: #f4f5f7;
+  
+}
+
+.goodsCell_flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  padding-left: 10rpx;
+  padding-top: 20rpx;
+  padding-bottom: 20rpx;
+  padding-right: 10rpx;
+  background-color: white;
+}
+
+
+.classify_other_category_cell image {
+  height: 145rpx;
+  width: 145rpx;
+}
+
+.classify_other_category_cell_text {
+  font-size: 25rpx;
+  text-align: center;
+  height: 30rpx;
+  line-height: 30rpx;
+}
+
+.bigImage {
+  width: 100%;
+  height: 250rpx;
+  display: flex;
+}
+.bigImage image {
+  width: 100%;
+  height: 250rpx;
+  padding-left: 10rpx;
+  padding-top: 20rpx;
+  padding-bottom: 20rpx;
+  padding-right: 10rpx;
+  background-color: white;
+}
+
+.active{
+	background:blue;
+	color:white;
+}
+.editicon{
+width:35rpx;
+height:35rpx;
+padding-bottom:15rpx;
+}

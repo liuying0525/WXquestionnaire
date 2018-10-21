@@ -1,18 +1,29 @@
 <!--pages/myproject/myproject.wxml-->
 <view class="tabNav">
-  <view wx:for="{{navTab}}" wx:key="index" data-idx="{{index}}" bindtap="currentTab" class="{{currentTab==index?'cur':''}}"><text>{{item}}</text></view>
+  <view wx:for="{{navTab}}" wx:key="index" data-idx="{{index}}" bindtap="currentTab" class="{{currentTab==index?'cur':''}}">
+    <text>{{item}}</text>
+  </view>
 </view>
 <view class='orderInfo'>
   <!-- <view class='orderInfo-item' wx:for="{{sendList}}" wx:key="index">{{item.content}}</view> -->
-  
-   <view wx:if="{{sendList.length==0}}" class="noneimage">
+  <view wx:if="{{sendList.length==0}}" class="noneimage">
     <image src='../../../images/none.png'></image>
     <text>你还没有项目哦~</text>
-   </view>
-  <view wx:else>
-   <view class="orderInfo-item" wx:for="{{sendList}}" wx:key="index">
-  {{item.content}}
   </view>
-   
-   </view>
+  <view wx:else>
+    <scroll-view scroll-y class="orderInfo-item">
+      <!-- <view class="orderInfo-item" wx:for="{{sendList}}" wx:key="index"> -->
+      <!-- {{item.content}} -->
+      <block wx:for="{{sendList}}" wx:key="{{index}}">
+        <view class="classify_recommendeds_right" bindtap="tapName" data-uid="{{item.id}}">
+          <view class='recommendeds_right_left'>
+            <text>{{item.sub_name}}</text>
+            <text>所属区域:{{item.area_belong}}</text>
+            <text>状态：{{item.status==2?"可编辑":"已关闭"}}</text>
+          </view>
+          <image class='recommendeds_right_right' wx:if="{{item.status==2}}" src="../../../images/edit.png" class="editicon"></image>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
 </view>

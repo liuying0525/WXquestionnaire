@@ -12,8 +12,8 @@ Page({
       "title": "个人资料",
       "isShow": false,
       "userLevel": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").level : "",
-      "iphone": "",
-      "address": "",
+      "iphone": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").mobile : "",
+      "address": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").addr : "",
     }, {
       "title": "公司简介",
       "isShow": false,
@@ -79,6 +79,8 @@ Page({
                   app.globalData.userOpenid = data.data.data.openid;
                   wx.setStorageSync("userOpenid", data.data.data.openid);
                   app.globalData.userInfo.level = data.data.data.level;
+                  app.globalData.userInfo.addr = data.data.data.addr;
+                  app.globalData.userInfo.mobile = data.data.data.mobile;
                   wx.setStorageSync("userInfo", app.globalData.userInfo);
                   that.setData({
                     userInfo: app.globalData.userInfo,
