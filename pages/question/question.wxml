@@ -24,7 +24,7 @@
         </block>
       </view>
   
-        <view class='bigitem_content {{item.isShow==true?"":"itemhidden"}}' wx:for="{{item.item}}" wx:for-item="oitem" wx:for-index="oindex" wx:key="{{oitem}}" id="list{{oitem.serial_number}}">
+        <view class='bigitem_content {{item.isShow==true?"":"itemhidden"}}' wx:for="{{item.item}}" wx:for-item="oitem" wx:for-index="oindex" wx:key="{{oitem}}" id="list{{oitem.id}}">
           <view class='smallitem'>
             <i wx:if="{{!!oitem.is_must&&oitem.is_must!='0'}}">*</i>
             <text>{{oindex+1}}.{{oitem.title}}</text>
@@ -78,7 +78,7 @@
               </block>
             </block>
             <block wx:if="{{oitem.sub_cat=='comprehensive'}}">
-              <view class='bigitem_content' wx:if="{{oitem.item.length!=0}}" wx:for="{{oitem.item}}" wx:for-item="mitem" wx:for-index="mindex" wx:key="{{mitem}}">
+              <view class='bigitem_content' wx:if="{{oitem.item.length!=0}}" wx:for="{{oitem.item}}" wx:for-item="mitem" wx:for-index="mindex" wx:key="{{mitem}}" id="list{{mitem.id}}">
                 <view class='smallitem'>
                   <i wx:if="{{!!mitem.is_must&&mitem.is_must!='0'}}">*</i>
                   <text>{{mindex+1}}){{mitem.title}}</text>
