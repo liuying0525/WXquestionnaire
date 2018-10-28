@@ -116,7 +116,9 @@ Page(Object.assign({
       for (var kid in this.data.anserResult) {
         for (var k = 0; k < gData.length; k++) {
           var itemInfo = gData[k].item.filter(o => o.id == kid);
-          gData[k].item.filter(o => o.id == kid)[0].result = this.data.anserResult[kid];
+          if (itemInfo.length > 0) {
+            gData[k].item.filter(o => o.id == kid)[0].result = this.data.anserResult[kid];
+          }
         }
       }
     },
@@ -408,7 +410,7 @@ Page(Object.assign({
       this.setData({
         uid: uid
       });
-      //this.getDataInitialization(this.data.uid);
+      this.getDataInitialization(this.data.uid);
     },
     getDataInitialization(uid) {
 
@@ -446,7 +448,6 @@ Page(Object.assign({
           this.itemResult(mm.item, AnserList, related);
           nlist.push(mm);
         }
-
         // 初始化有关联的题目不加载 2018.10.28
         var resultList = [];
         for (var i = 0, k = nlist.length; i < k; i++) {
@@ -458,9 +459,8 @@ Page(Object.assign({
             }
           }
           items.item = item;
+          resultList.push(items);
         }
-        resultList.push(items);
-
         //答案回显 需要追加到具体位置
         for (var i = 0, k = resultList.length; i < k; i++) {
           var items = resultList[i];
@@ -471,14 +471,20 @@ Page(Object.assign({
                 var options = items.item[m].option.filter(o => o.id == items.item[m].result)[0];
                 if (options.default_choose == "1") {
                   this.data.changeItemModel = items.item[m];
-                  var objItem = itemDist[i].item.filter(b => b.id == options.related_sub)[0];
-                  objItem && (resultList[i].item.splice(m + 1, 0, objItem))
+                  var objItem = itemDist[i].item.filter(b => b.id == options.related_sub);
+                  if (objItem.length > 0) {
+                    objItem = objItem[0];
+                    if (objItem.result && typeof(JSON.parse(objItem.result)) == "object") {
+                      var nameAll = JSON.parse(objItem.result);
+                      objItem.result = nameAll;
+                    }
+                    objItem && (resultList[i].item.splice(m + 1, 0, objItem))
+                  }
                 }
               }
             }
           }
         }
-
         this.setData({
           qlist: itemDist,
           qmlist: resultList
@@ -600,11 +606,10 @@ Page(Object.assign({
           }
         }
         if (modelItem[k].sub_cat == "loCation") {
-
           if (modelItem[k].result && typeof(JSON.parse(modelItem[k].result)) == "object") {
-
             var nameAll = JSON.parse(modelItem[k].result);
             modelItem[k].result = nameAll;
+            //modelItem[k].result = { "addresname": "222", "locationName": "33333" };
             // JSON.parse(modelItem[k].result).addresname = nameAll.addresname;
             // JSON.parse(modelItem[k].result).locationName = nameAll.locationName;
           }
@@ -647,7 +652,7 @@ Page(Object.assign({
      * 生命周期函数--监听页面显示
      */
     onShow: function() {
-      this.getDataInitialization(this.data.uid);
+      //this.getDataInitialization(this.data.uid);
     },
 
     /**

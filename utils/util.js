@@ -10,8 +10,10 @@ const formatTime = date => {
 }
 
 const formatNumber = n => {
-  n = n.toString()
-  return n[1] ? n : '0' + n
+  // n = n.toString()
+  // return n[1] ? n : '0' + n
+  n=parseInt(n);
+  return n;
 }
 
 const getSystemInfo=(params)=>{
@@ -24,5 +26,6 @@ const getSystemInfo=(params)=>{
 
 module.exports = {
   formatTime: formatTime,
-  getSystemInfo
+  getSystemInfo,
+  formatNumber
 }
