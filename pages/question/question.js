@@ -56,26 +56,49 @@ Page(Object.assign({
       var toViewid = "";
       rsModel[e.currentTarget.dataset.id] = txtValue;
       if (e.currentTarget.dataset.hasOwnProperty("mindex")) {
+        gData[lindex].item[oindex].item[mindex].result = txtValue; // 保存选择过的内容;
+        if (rsModel[id] != undefined) {
+          _this.setData({
+            changeItemModel: gData[lindex].item[oindex].item[mindex]
+          });
+        }
         for (var v = 0; v < gData[lindex].item[oindex].item[mindex].option.length; v++) {
+          gData[lindex].item[oindex].item[mindex].option[v].default_choose = "0";
           if (txtValue == gData[lindex].item[oindex].item[mindex].option[v].id) {
-            toViewid = 'list' + gData[lindex].item[oindex].item[mindex].option[v].skip_sub;
+            if (gData[lindex].item[oindex].item[mindex].option[v].skip_sub != "0") {
+              toViewid = 'list' + gData[lindex].item[oindex].item[mindex].option[v].skip_sub;
+            }
+            if (this.data.changeItemModel.option.filter(o => o.id == txtValue).length > 0) {
+              var osubidList = gData[lindex].item[oindex].item[mindex].option.filter(b => b.related_sub != "0");
+              //移除当选提有关联选项
+              for (var jj = 0; jj < osubidList.length; jj++) {
+                var iindex = gData[lindex].item[oindex].item.indexOf(gData[lindex].item[oindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                if (iindex != -1) {
+                  gData[lindex].item[oindex].item.splice(iindex, 1);
+                }
+              }
+            }
+            var subId = gData[lindex].item[oindex].item[mindex].option[v].related_sub;
+            if (subId != "" && subId != "0") {
+              var objItem = this.data.qlist[lindex].mod[oindex].item.filter(b => b.id == subId)[0];
+              gData[lindex].item[oindex].item.splice(mindex + 1, 0, objItem);
+            }
           }
         }
       } else {
 
         gData[lindex].item[oindex].result = txtValue; // 保存选择过的内容;
-
+        //debugger
         for (var v = 0; v < gData[lindex].item[oindex].option.length; v++) {
           gData[lindex].item[oindex].option[v].default_choose = "0";
           if (txtValue == gData[lindex].item[oindex].option[v].id) {
             gData[lindex].item[oindex].option[v].default_choose = "1";
-
             //跳转逻辑
-            if (gData[lindex].item[oindex].option[v].skip_sub != "") {
+            if (gData[lindex].item[oindex].option[v].skip_sub) {
               toViewid = 'list' + gData[lindex].item[oindex].option[v].skip_sub;
             }
             // 关联逻辑
-            if (this.data.changeItemModel.hasOwnProperty("id") && this.data.changeItemModel.id == id) {
+            if (this.data.changeItemModel.hasOwnProperty("id")) {
               var osubidList = gData[lindex].item[oindex].option.filter(b => b.related_sub != "0");
               //移除当选提有关联选项
               for (var jj = 0; jj < osubidList.length; jj++) {
@@ -453,16 +476,29 @@ Page(Object.assign({
         for (var i = 0, k = nlist.length; i < k; i++) {
           var items = nlist[i];
           var item = [];
+          var ncitem = [];
           for (var m = 0, n = items.item.length; m < n; m++) {
-            if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
-              item.push(items.item[m]);
+            if (items.item[m].sub_cat == "comprehensive") {
+              var citem = items.item[m].item;
+              for (var op = 0; op < citem.length; op++) {
+                if (this.data.relateSub.filter(o => o.id == citem[op].id).length == 0) {
+                  ncitem.push(citem[op]);
+                }
+              }
+              items.item[m].item = ncitem;
+            } else {
+              if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
+                item.push(items.item[m]);
+              }
             }
           }
-          items.item = item;
+          if (item.length > 0) {
+            items.item = item;
+          }
           resultList.push(items);
         }
         //答案回显 需要追加到具体位置
-        for (var i = 0, k = resultList.length; i < k; i++) {
+        for (var i = 0, qq = resultList.length; i < qq; i++) {
           var items = resultList[i];
           var item = [];
           for (var m = 0, n = items.item.length; m < n; m++) {
@@ -479,6 +515,27 @@ Page(Object.assign({
                       objItem.result = nameAll;
                     }
                     objItem && (resultList[i].item.splice(m + 1, 0, objItem))
+                  }
+                }
+              }
+            } else if (items.item[m].sub_cat == "comprehensive") {
+              var citems = items.item[m];
+              for (var k = 0, qm = citems.item.length; k < qm; k++) {
+                if (citems.item[k].sub_cat == "single") {
+                  if (citems.item[k].result != null && citems.item[k].result != "" && citems.item[k].result != "0") {
+                    var options = citems.item[k].option.filter(o => o.id == citems.item[k].result)[0];
+                    if (options.default_choose == "1") {
+                      this.data.changeItemModel = citems.item[k];
+                      var objItem = itemDist[i].mod[0].item.filter(b => b.id == options.related_sub);
+                      if (objItem.length > 0) {
+                        objItem = objItem[0];
+                        if (objItem.result && typeof(JSON.parse(objItem.result)) == "object") {
+                          var nameAll = JSON.parse(objItem.result);
+                          objItem.result = nameAll;
+                        }
+                        objItem && (resultList[i].item[0].item.splice(k + 1, 0, objItem))
+                      }
+                    }
                   }
                 }
               }
