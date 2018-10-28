@@ -62,10 +62,13 @@ page{
   font-size:36rpx;
   margin-bottom:35rpx;
 }
+.smallitem>i{
+  color:red;
+}
 .smallitem>text{
   padding-bottom:30rpx;
-  display: block;
   color:#333;
+  display: inline-block;
 } 
 .smallitem .radio,.smallitem .checkbox{
   display: block;
@@ -97,6 +100,8 @@ transform:scale(0.7);
    width:150rpx;
   height:150rpx;
   position: relative;
+  display: inline-block;
+  margin-right:10rpx;
 }
 .tapimgbutton{
   width:150rpx;
@@ -154,4 +159,9 @@ transform:scale(0.7);
     position:absolute;
   top:-40rpx;
   left:0;
+}
+
+.scr{
+    position: relative;
+    /* height: 500rpx */
 }

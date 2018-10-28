@@ -1,9 +1,11 @@
 <!--pages/question/question.wxml-->
 <view class='question_page'>
+    <scroll-view scroll-view scroll-into-view="{{toView}}" style='height:{{deviceHeight}}px' scroll-y="true" scroll-with-animation="true" class="scr">
   <view class="question_page_top">
     <text>咖啡市场问卷调查</text>
     <text>本问卷实行匿名制度</text>
   </view>
+  <!-- <button bindtap='saveLocation'>测试</button> -->
   <view class='question'>
     <view class='question_bigitem' wx:for="{{qmlist}}" wx:key="{{qmlist}}" wx:for-index="lindex">
       <block wx:if="{{item.isShow==true}}" class="bigitembg">
@@ -12,71 +14,145 @@
       <block wx:else>
         <image src='../../../images/gray.png'></image>
       </block>
-      <view class='question_bigitem_top ' bindtap='tagitem' data-lindex="{{lindex}}">
+      <view class='question_bigitem_top ' data-lindex="{{lindex}}">
         <text class='bigitemtitle'>{{item.mod_name}}</text>
         <block wx:if="{{item.isShow==true}}">
-          <image src='../../../images/single_d.png'></image>
+          <image src='../../../images/single_d.png' catchtap='tagitem' data-lindex="{{lindex}}"></image>
         </block>
         <block wx:else>
-          <image src='../../../images/single_u.png'></image>
+          <image src='../../../images/single_u.png' catchtap='tagitem' data-lindex="{{lindex}}"></image>
         </block>
       </view>
-      <view class='bigitem_content {{item.isShow==true?"":"itemhidden"}}' wx:for="{{item.item}}" wx:for-item="oitem" wx:for-index="oindex" wx:key="{{oitem}}">
-        <view class='smallitem'>
-          <text>{{oindex+1}}.{{oitem.title}}</text>
-          <block wx:if="{{oitem.sub_cat=='single'}}">
-            <radio-group class="radio-group" bindchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">
-              <label class="radio" wx:for="{{oitem.option}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
-                <radio value="{{oitemo.id}}" checked="{{oitemo.default_choose=='1' || oitem.result==oitemo.id}}" />{{oitemo.option_name}}
-              </label>
-            </radio-group>
-          </block>
-          <block wx:if="{{oitem.sub_cat=='multiple'}}" data-id="{{oitem.option[0].id}}">
-            <checkbox-group bindchange="checkboxChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">
-              <label class="checkbox" wx:for="{{oitem.option}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
-                <checkbox value="{{oitemo.id}}" checked="{{oitemo.default_choose=='1'}}" />{{oitemo.option_name}}
-              </label>
-            </checkbox-group>
-          </block>
-          <block wx:if="{{oitem.sub_cat=='fill'}}">
-            <!-- <input placeholder="{{oitem.title}}"  value="{{oitem.result}}"  data-id="{{oitem.option[0].id}}" bindinput="inputgetName" data-name='oitem.result'/> -->
-            <input placeholder="{{oitem.title}}" value="{{oitem.result}}" data-id="{{oitem.id}}" bindinput="inputgetValue" />
-          </block>
-          <block wx:if="{{oitem.sub_cat=='fractions'}}">
-            <slider bindchange="slider4change" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}" min="0" max="{{oitem.option[0].option_name}}" show-value value="{{oitem.result||oitem.option[0].option_name}}" block-size="18" activeColor="rgb(69,152,252)"/>
-          </block>
-          <block wx:if="{{oitem.sub_cat=='loCation'}}">
-            <view>{{oitem.result}}</view>
-            <button bindtap='btnchoose' type='primary' data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">获取当前位置</button>
-          </block>
-          <block wx:if="{{oitem.sub_cat=='uploadimg'}}">
-            <block wx:for="{{oitem.option[0].option_name}}" wx:key="{{oitem.option[0].option_name}}">
-              <view class="uploadimg">
-                <view class='tapimgbutton' wx:if="{{!tagaction}}">
-                  <button bindtap="gotoShow" class='uploadimgbutton'>+</button>
-                </view>
-                <view class='show-image-view' bindtap="chooseImage" data-index="{{item}}">
-                  <image class="show-image" mode="aspectFitf" src="{{src}}">
-                  </image>
-                </view>
+  
+        <view class='bigitem_content {{item.isShow==true?"":"itemhidden"}}' wx:for="{{item.item}}" wx:for-item="oitem" wx:for-index="oindex" wx:key="{{oitem}}" id="list{{oitem.serial_number}}">
+          <view class='smallitem'>
+            <i wx:if="{{!!oitem.is_must&&oitem.is_must!='0'}}">*</i>
+            <text>{{oindex+1}}.{{oitem.title}}</text>
+            <block wx:if="{{oitem.sub_cat=='single'}}">
+              <radio-group class="radio-group" bindchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">
+                <label class="radio" wx:for="{{oitem.option}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
+                  <radio value="{{oitemo.id}}" checked="{{oitemo.default_choose=='1'||oitem.result==oitemo.id}}" />{{oitemo.option_name}}
+                </label>
+              </radio-group>
+            </block>
+            <block wx:if="{{oitem.sub_cat=='multiple'}}" data-id="{{oitem.option[0].id}}">
+              <checkbox-group bindchange="checkboxChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">
+                <label class="checkbox" wx:for="{{oitem.option}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
+                  <checkbox value="{{oitemo.id}}" checked="{{oitemo.default_choose=='1'}}" data-skip="{{oitemo.skip_sub}}" />{{oitemo.option_name}}
+                </label>
+              </checkbox-group>
+            </block>
+            <block wx:if="{{oitem.sub_cat=='fill'}}">
+              <!-- <input placeholder="{{oitem.title}}"  value="{{oitem.result}}"  data-id="{{oitem.option[0].id}}" bindinput="inputgetName" data-name='oitem.result'/> -->
+              <input placeholder="{{oitem.title}}" value="{{oitem.result}}" data-id="{{oitem.id}}" bindinput="inputgetValue" />
+            </block>
+            <block wx:if="{{oitem.sub_cat=='fractions'}}">
+              <slider bindchange="slider4change" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}" min="0" max="{{oitem.option[0].option_name}}" show-value value="{{oitem.result||oitem.option[0].option_name}}" block-size="18" activeColor="rgb(69,152,252)"
+              />
+            </block>
+            <block wx:if="{{oitem.sub_cat=='loCation'}}">
+              <!-- <view>{{oitem.locationName}},{{oitem.result}}</view> -->
+              <view>{{oitem.result?oitem.result.locationName:""}}</view>
+              <view>{{oitem.result?oitem.result.addresname:""}}</view>
+              <button bindtap='btnchoose' type='primary' data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">获取当前位置</button>
+            </block>
+            <block wx:if="{{oitem.sub_cat=='uploadimg'}}">
+              <view>
+                <block wx:for="{{oitem.option[0].option_name}}" wx:key="{{oitem.option[0].option_name}}">
+                  <view class="uploadimg">
+                    <view class='tapimgbutton' wx:if="{{!tagaction}}">
+                      <button bindtap="gotoShow" class='uploadimgbutton'>+</button>
+                    </view>
+                    <view class='show-image-view' bindtap="chooseImage" data-index="{{item}}">
+                      <image class="show-image" mode="aspectFitf" src="{{src}}">
+                      </image>
+                    </view>
+                  </view>
+                </block>
               </view>
             </block>
-          </block>
-          <block wx:if="{{oitem.sub_cat=='multistage'}}">
-            <block wx:for="{{oitem.pickerList}}" wx:for-item="pickoption" wx:for-index="pindex" wx:key="pickoption">
-              <picker bindchange="bindPickerChange" value="{{pickoption.pindex}}" range="{{pickoption.options}}" data-lindex="{{lindex}}" data-id="{{oitem.id}}" data-oindex="{{oindex}}" data-pindex="{{pindex}}" data-options="{{pickoption.options}}">
-                <view class="picker">{{pickoption.result}}</view>
-              </picker>
+            <block wx:if="{{oitem.sub_cat=='multistage'}}">
+              <block wx:for="{{oitem.pickerList}}" wx:for-item="pickoption" wx:for-index="pindex" wx:key="pickoption">
+                <picker bindchange="bindPickerChange" value="{{pickoption.pindex}}" range="{{pickoption.options}}" data-lindex="{{lindex}}" data-id="{{oitem.id}}" data-oindex="{{oindex}}" data-pindex="{{pindex}}" data-options="{{pickoption.options}}">
+                  <view class="picker">{{pickoption.result}}</view>
+                </picker>
+              </block>
             </block>
-          </block>
+            <block wx:if="{{oitem.sub_cat=='comprehensive'}}">
+              <view class='bigitem_content' wx:if="{{oitem.item.length!=0}}" wx:for="{{oitem.item}}" wx:for-item="mitem" wx:for-index="mindex" wx:key="{{mitem}}">
+                <view class='smallitem'>
+                  <i wx:if="{{!!mitem.is_must&&mitem.is_must!='0'}}">*</i>
+                  <text>{{mindex+1}}){{mitem.title}}</text>
+                  <block wx:if="{{mitem.sub_cat=='fill'}}">
+                    <input placeholder="{{mitem.title}}" value="{{mitem.result}}" data-id="{{mitem.id}}" bindinput="inputgetValue" />
+                  </block>
+                  <block wx:if="{{mitem.sub_cat=='single'}}">
+                    <radio-group class="radio-group" bindchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-mindex="{{mindex}}">
+                      <label class="radio" wx:for="{{mitem.option}}" wx:for-item="mitemo" wx:key="{{mitemo}}">
+                        <radio value="{{mitemo.id}}" checked="{{mitemo.default_choose=='1'||mitem.result==mitemo.id }}" />{{mitemo.option_name}}
+                      </label>
+                    </radio-group>
+                  </block>
+                  <block wx:if="{{mitem.sub_cat=='multiple'}}" data-id="{{mitem.option[0].id}}">
+                    <checkbox-group bindchange="checkboxChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-mindex="{{mindex}}">
+                      <label class="checkbox" wx:for="{{mitem.option}}" wx:for-item="mitemo" wx:key="{{mitemo}}">
+                        <checkbox value="{{mitemo.id}}" checked="{{mitemo.default_choose=='1'}}" />{{mitemo.option_name}}
+                      </label>
+                    </checkbox-group>
+                  </block>
+                  <block wx:if="{{mitem.sub_cat=='fractions'}}">
+                    <slider bindchange="slider4change" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" min="0" max="{{mitem.option[0].option_name}}" show-value value="{{mitem.result||mitem.option[0].option_name}}" block-size="18" activeColor="rgb(69,152,252)"
+                    />
+                  </block>
+                  <block wx:if="{{mitem.sub_cat=='loCation'}}">
+                    <!-- <view>{{mitem.result}}</view> -->
+                    <view>{{mitem.result?mitem.result.locationName:""}}</view>
+                    <view>{{mitem.result?mitem.result.addresname:""}}</view>
+                    <button bindtap='btnchoose' type='primary' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}">获取当前位置</button>
+                  </block>
+                  <block wx:if="{{mitem.sub_cat=='uploadimg'}}">
+                    <view>
+                      <block wx:for="{{mitem.option[0].option_name}}" wx:key="{{mitem.option[0].option_name}}">
+                        <view class="uploadimg">
+                          <view class='tapimgbutton' wx:if="{{!tagaction}}">
+                            <button bindtap="gotoShow" class='uploadimgbutton'>+</button>
+                          </view>
+                          <view class='show-image-view' bindtap="chooseImage" data-index="{{item}}">
+                            <image class="show-image" mode="aspectFitf" src="{{src}}">
+                            </image>
+                          </view>
+                        </view>
+                      </block>
+                    </view>
+
+                  </block>
+                  <block wx:if="{{mitem.sub_cat=='multistage'}}">
+                    <block wx:for="{{mitem.pickerList}}" wx:for-item="pickoption" wx:for-index="pindex" wx:key="pickoption">
+                      <picker bindchange="bindPickerChange" value="{{pickoption.pindex}}" range="{{pickoption.options}}" data-lindex="{{lindex}}" data-id="{{mitem.id}}" data-oindex="{{oindex}}" data-pindex="{{pindex}}" data-mindex="{{mindex}}" data-options="{{pickoption.options}}">
+                        <view class="picker">{{pickoption.result}}</view>
+                      </picker>
+                    </block>
+                  </block>
+                </view>
+
+              </view>
+
+            </block>
+
+
+          </view>
+
+
         </view>
-      </view>
+
+   
     </view>
   </view>
   <view style='flex-direction:row'>
-    <button type="default" size="12" class='buttontop' bindtap="savequestion">保存</button>
+    <button type="default" size="12" class='buttontop' bindtap="savequestion" data-save="1">保存</button>
     <button type="default" size="12" class='buttontop'>取消</button>
   </view>
 
-  <button type="primary" size="default" class="primary" bindtap="submitquestion">提交</button>
+  <button type="primary" size="default" class="primary" bindtap="savequestion" data-save="2">提交</button>
+   </scroll-view>
 </view>

@@ -1,5 +1,7 @@
 import api from '../../api/api.js';
-var commonMixin = require('../../utils/commonMixin')
+import util from '../../utils/util.js';
+var commonMixin = require('../../utils/commonMixin');
+
 Page(Object.assign({
 
     /**
@@ -9,54 +11,169 @@ Page(Object.assign({
       uid: "",
       qlist: {},
       qmlist: [],
+      mustList: [],
+      itemModList: [],
       tagaction: false,
       addres: "",
+      deviceWidth: "",
+      deviceHeight: "",
       src: "",
+      toView: "",
       array: ['美国', '中国', '巴西', '日本'],
       tempFilePaths: '',
       answerList: [],
       oitem: {},
       anserResult: {},
-      multistageIni: ""
+      multistageIni: "",
+      options: [{
+          name: 'USA',
+          value: '美国'
+        },
+        {
+          name: 'CHN',
+          value: '中国',
+          checked: 'true'
+        }
+      ],
+      relateSub: [],
+      changeItemModel: {}
     },
     radioChange: function(e) {
+      var _this = this;
       var txtValue = e.detail.value;
       var rsModel = this.data.anserResult;
+      var id = e.currentTarget.dataset.id;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var mindex = e.currentTarget.dataset.hasOwnProperty("mindex") ? e.currentTarget.dataset.mindex : "";
+      var gData = this.data.qmlist;
+      if (rsModel[id] != undefined) {
+        _this.setData({
+          changeItemModel: gData[lindex].item[oindex]
+        });
+      }
+      rsModel[id] = txtValue;
+      var toViewid = "";
       rsModel[e.currentTarget.dataset.id] = txtValue;
-      this.setData({
-        anserResult: rsModel
+      if (e.currentTarget.dataset.hasOwnProperty("mindex")) {
+        for (var v = 0; v < gData[lindex].item[oindex].item[mindex].option.length; v++) {
+          if (txtValue == gData[lindex].item[oindex].item[mindex].option[v].id) {
+            toViewid = 'list' + gData[lindex].item[oindex].item[mindex].option[v].skip_sub;
+          }
+        }
+      } else {
+
+        gData[lindex].item[oindex].result = txtValue; // 保存选择过的内容;
+
+        for (var v = 0; v < gData[lindex].item[oindex].option.length; v++) {
+          gData[lindex].item[oindex].option[v].default_choose = "0";
+          if (txtValue == gData[lindex].item[oindex].option[v].id) {
+            gData[lindex].item[oindex].option[v].default_choose = "1";
+
+            //跳转逻辑
+            if (gData[lindex].item[oindex].option[v].skip_sub != "") {
+              toViewid = 'list' + gData[lindex].item[oindex].option[v].skip_sub;
+            }
+            // 关联逻辑
+            if (this.data.changeItemModel.hasOwnProperty("id") && this.data.changeItemModel.id == id) {
+              var osubidList = gData[lindex].item[oindex].option.filter(b => b.related_sub != "0");
+              //移除当选提有关联选项
+              for (var jj = 0; jj < osubidList.length; jj++) {
+                var iindex = gData[lindex].item.indexOf(gData[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                if (iindex != -1) {
+                  gData[lindex].item.splice(iindex, 1);
+                }
+              }
+            }
+            var subId = gData[lindex].item[oindex].option[v].related_sub;
+            if (subId != "" && subId != "0") {
+              var objItem = this.data.qlist[lindex].item.filter(b => b.id == subId)[0];
+              gData[lindex].item.splice(oindex + 1, 0, objItem);
+            }
+          }
+        }
+      }
+      _this.setData({
+        anserResult: rsModel,
+        toView: toViewid,
+        qmlist: gData
       });
+
     },
     inputgetValue: function(e) {
       var txtValue = e.detail.value;
       var rsModel = this.data.anserResult;
       rsModel[e.currentTarget.dataset.id] = txtValue;
+      this.saveTogData();
       this.setData({
         anserResult: rsModel
       });
     },
+
+    //保存对象定义值
+    saveTogData() {
+      var gData = this.data.qmlist;
+      for (var kid in this.data.anserResult) {
+        for (var k = 0; k < gData.length; k++) {
+          var itemInfo = gData[k].item.filter(o => o.id == kid);
+          gData[k].item.filter(o => o.id == kid)[0].result = this.data.anserResult[kid];
+        }
+      }
+    },
     checkboxChange: function(e) {
+
+      var id = e.currentTarget.dataset.id;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var mindex = e.currentTarget.dataset.hasOwnProperty("mindex") ? e.currentTarget.dataset.mindex : "";
+      var gData = this.data.qmlist;
       var txtValue = e.detail.value.join(',');
       var rsModel = this.data.anserResult;
       rsModel[e.currentTarget.dataset.id] = txtValue;
+      this.saveTogData();
       this.setData({
         anserResult: rsModel
       });
+      var changeModel = {};
+      if (e.currentTarget.dataset.hasOwnProperty("mindex")) {
+        changeModel = gData[lindex].item[oindex].item[mindex];
+      } else {
+        changeModel = gData[lindex].item[oindex];
+      }
+      for (var k = 0; k < changeModel.option.length; k++) {
+        changeModel.option[k].default_choose = "0";
+        if (txtValue.indexOf(changeModel.option[k].id) != -1) {
+          changeModel.option[k].default_choose = "1";
+        }
+      }
+      if (e.currentTarget.dataset.hasOwnProperty("mindex")) {
+        gData[lindex].item[oindex].item[mindex] = changeModel;
+      } else {
+        gData[lindex].item[oindex] = changeModel;
+      }
     },
     bindPickerChange: function(e) {
+
       var lindex = e.currentTarget.dataset.lindex;
       var oindex = e.currentTarget.dataset.oindex;
       var pindex = e.currentTarget.dataset.pindex;
+      var mindex = e.currentTarget.dataset.mindex;
       var options = e.currentTarget.dataset.options;
+
       var gData = this.data.qmlist;
       var pvalue = parseInt(e.detail.value);
       var picList = [];
       var result = options[pvalue];
-      var dmodel = gData[lindex].item[oindex].pickerList[pindex];
+      if (e.currentTarget.dataset.hasOwnProperty("mindex")) {
+        var bindItem = gData[lindex].item[oindex].item[mindex];
+      } else {
+        var bindItem = gData[lindex].item[oindex];
+      }
+      var dmodel = bindItem.pickerList[pindex];
       dmodel.result = result;
       dmodel.pindex = pvalue;
-      gData[lindex].item[oindex].pickerList[pindex] = dmodel;
-      var maxDefault = parseInt(gData[lindex].item[oindex].option[0].default_choose);
+      bindItem.pickerList[pindex] = dmodel;
+      var maxDefault = parseInt(bindItem.option[0].default_choose);
 
       //保存选择的答案
       var rsModel = this.data.anserResult;
@@ -72,13 +189,14 @@ Page(Object.assign({
         saveValue = sarrary.join(",");
       }
       rsModel[e.currentTarget.dataset.id] = saveValue;
+      this.saveTogData();
       this.setData({
         anserResult: rsModel
       });
 
       if (maxDefault > (pindex + 1)) {
         var nresult = "";
-        var noption = gData[lindex].item[oindex].option[0].option_name[pindex + 1].childList;
+        var noption = bindItem.option[0].option_name[pindex + 1].childList;
         var sooption = noption.filter(a => a.label == result);
         var pmodel = {};
         pmodel.kindex = "kindex_" + (pvalue + 1);
@@ -92,7 +210,7 @@ Page(Object.assign({
         pmodel.pindex = 0;
         pmodel.result = nresult;
         pmodel.options = picList;
-        gData[lindex].item[oindex].pickerList[pindex + 1] = pmodel;
+        bindItem.pickerList[pindex + 1] = pmodel;
       }
       this.setData({
         qmlist: gData
@@ -102,6 +220,7 @@ Page(Object.assign({
       var txtValue = e.detail.value;
       var rsModel = this.data.anserResult;
       rsModel[e.currentTarget.dataset.id] = txtValue;
+      this.saveTogData();
       this.setData({
         anserResult: rsModel
       });
@@ -115,28 +234,35 @@ Page(Object.assign({
         sizeType: ['original', 'compressed'], // original 原图，compressed 压缩图，默认二者都有
         sourceType: ['album', 'camera'], // album 从相册选图，camera 使用相机，默认二者都有
         success: function(res) {
-          // success
-          console.log(res)
-          _this.setData({
-            src: res.tempFilePaths
-          })
           const tempFilePaths = res.tempFilePaths
-          // wx.uploadFile({
-          //   url: 'https://example.weixin.qq.com/upload', //仅为示例，非真实的接口地址
-          //   filePath: tempFilePaths[0],
-          //   name: 'file',
-          //   formData: {
-          //     'user': 'test'
-          //   },
-          //   success(res) {
-          //     const data = res.data
-          //     debugger
-          //     //do something
-          //   }
-          // })
-          _this.setData({
-            tagaction: true
+          wx.uploadFile({
+            url: 'http://114.92.40.170:58080/Api/Answer/upload', //仅为示例，非真实的接口地址
+            filePath: tempFilePaths[0],
+            header: {
+              "Content-Type": "multipart/form-data",
+              'accept': 'application/json',
+            },
+            name: 'file',
+            formData: {
+              'openid': wx.getStorageSync("userOpenid")
+            },
+            success(res) {
+              const data = JSON.parse(res.data)
+              //do something
+              _this.setData({
+                src: data.data.uploadPath
+              })
+              // api.uploadImage({
+              //   success(data){
+              //     console.log(data);
+              //     debugger
+              //   }
+              // })
+            }
           })
+          // _this.setData({
+          //   tagaction: true
+          // })
 
         },
 
@@ -155,7 +281,7 @@ Page(Object.assign({
         urls: _this.data.src,
       });
     },
-    getLocation: function(lindex, oindex, id) {
+    getLocation: function(lindex, oindex, id, mindex) {
       let vm = this;
       wx.getLocation({
         type: 'wgs84',
@@ -167,20 +293,42 @@ Page(Object.assign({
               var addresname = res.address;
               var latitude = res.latitude;
               var longitude = res.longitude;
+              var locationName = res.name;
               var rsModel = vm.data.anserResult;
               var gData = vm.data.qmlist;
-              rsModel[id] = addresname + ",latitude=" + latitude + ",longitude=" + longitude;
-              gData[lindex].item[oindex].result = addresname;
+              // rsModel[id] = addresname + "--" + locationName + ",latitude=" + latitude + ",longitude=" + longitude;
+              rsModel[id] = {
+                "addresname": addresname,
+                "locationName": locationName
+              }
+
+              if (mindex != "") {
+                gData[lindex].item[oindex].item[mindex].result = {
+                  "addresname": addresname,
+                  "locationName": locationName
+                }
+              } else {
+                gData[lindex].item[oindex].result = {
+                  "addresname": addresname,
+                  "locationName": locationName
+                }
+              }
               vm.setData({
+                qmlist: gData,
                 anserResult: rsModel,
-                qmlist: gData
               });
+              //vm.saveTogData();
+              //主要保存 选择的地区  执行show方法
+
+              vm.saveLocation();
+
+
             }
           })
         }
       })
     },
-    getUserLocation: function(lindex, oindex, id) {
+    getUserLocation: function(lindex, oindex, id, mindex) {
       let vm = this;
       wx.getSetting({
         success: (res) => {
@@ -204,7 +352,7 @@ Page(Object.assign({
                           icon: 'success',
                           duration: 1000
                         })
-                        vm.getLocation();
+                        vm.getLocation(lindex, oindex, id, mindex);
                       } else {
                         wx.showToast({
                           title: '授权失败',
@@ -219,10 +367,10 @@ Page(Object.assign({
             })
           } else if (res.authSetting['scope.userLocation'] == undefined) {
             //调用wx.getLocation的API
-            vm.getLocation(lindex, oindex, id);
+            vm.getLocation(lindex, oindex, id, mindex);
           } else {
             //调用wx.getLocation的API
-            vm.getLocation(lindex, oindex, id);
+            vm.getLocation(lindex, oindex, id, mindex);
           }
         }
       })
@@ -231,7 +379,8 @@ Page(Object.assign({
       var id = e.currentTarget.dataset.id;
       var lindex = e.currentTarget.dataset.lindex;
       var oindex = e.currentTarget.dataset.oindex;
-      this.getUserLocation(lindex, oindex, id);
+      var mindex = e.currentTarget.dataset.mindex || "";
+      this.getUserLocation(lindex, oindex, id, mindex);
     },
     tagitem: function(e) {
       var index = e.target.dataset.lindex;
@@ -245,99 +394,96 @@ Page(Object.assign({
      * 生命周期函数--监听页面加载
      */
     onLoad: function(options) {
+      var that = this;
+      //页面初始化options为页面跳转所带来的参数 res.windowHeight
+      util.getSystemInfo({
+        success: (res) => {
+          that.setData({
+            deviceWidth: res.windowWidth,
+            deviceHeight: res.windowHeight
+          });
+        }
+      });
       var uid = options.uid;
       this.setData({
         uid: uid
       });
-      this.getDataInitialization(this.data.uid);
+      //this.getDataInitialization(this.data.uid);
     },
     getDataInitialization(uid) {
+
       this.getData(uid).then(res => {
+
         var sData = res;
         var dist = sData.mod;
+        var itemDist = JSON.parse(JSON.stringify(dist));
         var nlist = [];
-        for (var i = 0; i < dist.length; i++) {
-          var mm = dist[i];
-          mm.isShow = i == 0 ? true : false;
-          for (var k = 0; k < mm.item.length; k++) {
-            if (mm.item[k].sub_cat == "multistage") {
-              var picList = [];
-              var count = parseInt(mm.item[k].option[0].default_choose);
-              var resArrary = mm.item[k].hasOwnProperty("result") ? mm.item[k].result.split(",") : new Array[count];
-              //debugger
-              var clist = mm.item[k].option[0].option_name;
-              if (clist != null) {
-                for (var j = 0; j < count; j++) {
-                  var pmodel = {};
-                  pmodel.kindex = "kindex_" + (j + 1);
-                  pmodel.options = [];
-                  pmodel.result = "";
-                  if (j > 0) {
-                    if (this.data.multistageIni != "") {
-                      var noption = clist[j].childList.filter(a => a.label == this.data.multistageIni);
-                      var narrary = noption[0].value.split(',');
-                      for (var m = 0; m < narrary.length; m++) {
-                        pmodel.options.push(narrary[m]);
-                        if (resArrary[j] == m) {
-                          pmodel.result = narrary[m];
-                        }
-                      }
-                    } else {
-                      for (var m = 0; m < clist[j].options.length; m++) {
-                        m == 0 && (pmodel.result = clist[j].options[m].value);
-                        pmodel.options.push(clist[j].options[m].value);
-                      }
-                    }
-                  } else {
-                    for (var m = 0; m < clist[j].options.length; m++) {
-                      m == 0 && (pmodel.result = clist[j].options[m].value);
-                      pmodel.options.push(clist[j].options[m].value);
-                    }
-                  }
-                  debugger
-                  pmodel.pindex = resArrary[j] == "" ? 0 : parseInt(resArrary[j]);
-                  if (resArrary[j] != "") {
-                    pmodel.result = pmodel.options[parseInt(resArrary[j])];
-                  }
-                  this.setData({
-                    multistageIni: pmodel.result
-                  });
-                  picList.push(pmodel);
-                }
-              }
-              mm.item[k].pickerList = picList;
-            }
-            if (mm.item[k].sub_cat == "multiple") {
-              for (var q = 0; q < mm.item[k].option.length; q++) {
-                if (mm.item[k].result) {
-                  var df = "0";
-                  var res = "," + mm.item[k].result + ",";
-                  var rid = "," + mm.item[k].option[q].id + ",";
-                  if (res.indexOf(rid) != -1) {
-                    df = "1";
-                  }
-                  mm.item[k].option[q].default_choose = df;
-                }
-              }
-            }
-            if (mm.item[k].sub_cat == "loCation") {
-              if (mm.item[k].result) {
-                mm.item[k].result = mm.item[k].result.split(",")[0];
-              }
-            }
-            if (mm.item[k].sub_cat == "fractions") {
-              if (mm.item[k].hasOwnProperty("result")) {
-                //mm.item[k].result = 50;
-              }
-            }
+        var itemmodList = [];
+        var AnserList = [];
 
+        for (var i = 0; i < dist.length; i++) {
+
+          var mm = dist[i];
+
+          mm.isShow = i == 0 ? true : false;
+          if (!!mm.mod && mm.mod.length != 0) { //mm.item[i].item！=0
+
+            for (var j = 0; j < mm.mod.length; j++) {
+              mm.mod[j].sub_cat = 'comprehensive';
+              mm.mod[j].title = mm.mod[j].mod_name;
+              if (mm.hasOwnProperty("item") && mm.item.length == 0) {
+                mm.item = [];
+              }
+              mm.item.push(mm.mod[j]);
+            }
+            for (var w = 0; w < mm.item.length; w++) {
+              var related = mm.item[w].serial_number;
+              if (mm.item[w].hasOwnProperty("item")) {
+                this.itemResult(mm.item[w].item, AnserList, related);
+              }
+            }
           }
+          this.itemResult(mm.item, AnserList, related);
           nlist.push(mm);
         }
+
+        // 初始化有关联的题目不加载 2018.10.28
+        var resultList = [];
+        for (var i = 0, k = nlist.length; i < k; i++) {
+          var items = nlist[i];
+          var item = [];
+          for (var m = 0, n = items.item.length; m < n; m++) {
+            if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
+              item.push(items.item[m]);
+            }
+          }
+          items.item = item;
+        }
+        resultList.push(items);
+
+        //答案回显 需要追加到具体位置
+        for (var i = 0, k = resultList.length; i < k; i++) {
+          var items = resultList[i];
+          var item = [];
+          for (var m = 0, n = items.item.length; m < n; m++) {
+            if (items.item[m].sub_cat == "single") {
+              if (items.item[m].result != null && items.item[m].result != "" && items.item[m].result != "0") {
+                var options = items.item[m].option.filter(o => o.id == items.item[m].result)[0];
+                if (options.default_choose == "1") {
+                  this.data.changeItemModel = items.item[m];
+                  var objItem = itemDist[i].item.filter(b => b.id == options.related_sub)[0];
+                  objItem && (resultList[i].item.splice(m + 1, 0, objItem))
+                }
+              }
+            }
+          }
+        }
+
         this.setData({
-          qlist: sData,
-          qmlist: nlist
+          qlist: itemDist,
+          qmlist: resultList
         });
+
       });
     },
     getData: function(uid) {
@@ -356,6 +502,140 @@ Page(Object.assign({
         });
       });
     },
+    itemResult: function(modelItem, AnserList, related) { //modelItem= mm.item
+
+      for (var k = 0; k < modelItem.length; k++) {
+        modelItem[k].serial_number = parseInt(modelItem[k].serial_number);
+        if (modelItem[k].sub_cat == "single") {
+          for (var q = 0; q < modelItem[k].option.length; q++) {
+            if (modelItem[k].option[q].related_sub != "0") {
+              var sublist = this.data.relateSub;
+              sublist.push({
+                "id": modelItem[k].option[q].related_sub,
+                "serial_number": modelItem[k].serial_number
+              });
+              this.setData({
+                relateSub: sublist
+              })
+
+            }
+            if (modelItem[k].result) {
+              var df = "0";
+              var res = modelItem[k].result;
+              var rid = modelItem[k].option[q].id;
+              if (res.indexOf(rid) != -1) {
+                df = "1";
+              }
+              modelItem[k].option[q].default_choose = df;
+            }
+          }
+        }
+        if (modelItem[k].sub_cat == "multistage") {
+          var picList = [];
+          var count = parseInt(modelItem[k].option[0].default_choose);
+          var resArrary = [];
+          if (!!modelItem[k].result) {
+            resArrary = modelItem[k].result.split(",");
+          } else {
+            for (var mm = 0; mm < count; mm++) {
+              resArrary.push(0);
+            }
+          }
+          var clist = modelItem[k].option[0].option_name;
+          if (clist != null) {
+            for (var j = 0; j < count; j++) {
+              var pmodel = {};
+              pmodel.kindex = "kindex_" + (j + 1);
+              pmodel.options = [];
+              pmodel.result = "";
+              if (j > 0) {
+                if (this.data.multistageIni != "") {
+                  var noption = clist[j].childList.filter(a => a.label == this.data.multistageIni);
+                  var narrary = noption[0].value.split(',');
+                  for (var m = 0; m < narrary.length; m++) {
+                    pmodel.options.push(narrary[m]);
+                    if (resArrary[j] == m) {
+                      pmodel.result = narrary[m];
+                    }
+                  }
+                } else {
+                  for (var m = 0; m < clist[j].options.length; m++) {
+                    if (clist[j].svalue != "" && modelItem[k].result == "") {
+                      m == 0 && (pmodel.result = clist[j].svalue);
+                    } else {
+                      m == 0 && (pmodel.result = clist[j].options[m].value);
+                    }
+                    pmodel.options.push(clist[j].options[m].value);
+                  }
+                }
+              } else {
+                for (var m = 0; m < clist[j].options.length; m++) {
+                  m == 0 && (pmodel.result = clist[j].options[m].value);
+                  pmodel.options.push(clist[j].options[m].value);
+                }
+              }
+              pmodel.pindex = resArrary[j] == "" ? 0 : parseInt(resArrary[j]);
+              if (resArrary[j] != "") {
+                pmodel.result = pmodel.options[parseInt(resArrary[j])];
+              }
+              this.setData({
+                multistageIni: pmodel.result
+              });
+              picList.push(pmodel);
+            }
+          }
+          modelItem[k].pickerList = picList;
+        }
+        if (modelItem[k].sub_cat == "multiple") {
+          for (var q = 0; q < modelItem[k].option.length; q++) {
+            if (modelItem[k].result) {
+              var df = "0";
+              var res = "," + modelItem[k].result + ",";
+              var rid = "," + modelItem[k].option[q].id + ",";
+              if (res.indexOf(rid) != -1) {
+                df = "1";
+              }
+              modelItem[k].option[q].default_choose = df;
+            }
+          }
+        }
+        if (modelItem[k].sub_cat == "loCation") {
+
+          if (modelItem[k].result && typeof(JSON.parse(modelItem[k].result)) == "object") {
+
+            var nameAll = JSON.parse(modelItem[k].result);
+            modelItem[k].result = nameAll;
+            // JSON.parse(modelItem[k].result).addresname = nameAll.addresname;
+            // JSON.parse(modelItem[k].result).locationName = nameAll.locationName;
+          }
+
+        }
+        if (modelItem[k].sub_cat == "fractions") {
+          if (modelItem[k].hasOwnProperty("result")) {
+            //mm.item[k].result = 50;
+          }
+        }
+        modelItem.sort(function(a, b) {
+          return a.serial_number - b.serial_number;
+        });
+        // 结束
+        if (modelItem[k].result) {
+          AnserList.push({
+            "id": modelItem[k].id,
+            "result": modelItem[k].result
+          })
+          this.setData({
+            answerList: AnserList
+          })
+        }
+        if (modelItem[k].is_must == "1") {
+          this.data.mustList.push({
+            "id": modelItem[k].id,
+            "questionname": modelItem[k].title
+          });
+        }
+      }
+    },
     /**
      * 生命周期函数--监听页面初次渲染完成
      */
@@ -367,7 +647,7 @@ Page(Object.assign({
      * 生命周期函数--监听页面显示
      */
     onShow: function() {
-
+      this.getDataInitialization(this.data.uid);
     },
 
     /**
@@ -383,7 +663,6 @@ Page(Object.assign({
     onUnload: function() {
 
     },
-
     /**
      * 页面相关事件处理函数--监听用户下拉动作
      */
@@ -404,21 +683,51 @@ Page(Object.assign({
     onShareAppMessage: function() {
 
     },
-    savequestion: function() {
+    savequestion: function(e) {
+
       var _this = this;
-      var anserList = [];
+      // var anserList = this.data.answerList.push;
       console.log(JSON.stringify(this.data.anserResult));
+
       var forinModel = this.data.anserResult;
       for (var mkey in forinModel) {
-        anserList.push({
+        for (var i = 0; i < _this.data.answerList.length; i++) {
+          if (_this.data.answerList[i].id == mkey) {
+
+            _this.data.answerList.splice(i, 1)
+          }
+        }
+        _this.data.answerList.push({
           "id": mkey,
           "result": forinModel[mkey]
         });
       }
+      console.log(_this.data.answerList)
       var saveModel = {};
       saveModel.id = this.data.uid;
-      saveModel.ans_status = "1";
-      saveModel.data = JSON.stringify(anserList);
+      saveModel.ans_status = e.target.dataset.save;
+      for (var i = 0; i < this.data.answerList.length; i++) {
+        if (typeof(this.data.answerList[i].result) == 'object') {
+          this.data.answerList[i].result = JSON.stringify(this.data.answerList[i].result)
+        }
+      }
+      saveModel.data = JSON.stringify(_this.data.answerList);
+      if (e.target.dataset.save == "2") {
+        for (var q = 0; q < _this.data.mustList.length; q++) {
+          for (var b = 0; b < _this.data.answerList.length; b++) {
+            if (!_this.data.answerList[b][_this.data.mustList[q].id]) {
+              wx.showModal({
+                title: '提示',
+                content: "题目:" + _this.data.mustList[q].questionname + "为必答题，请作答后再提交",
+                success: function(res) {
+                  // _this.getDataInitialization(_this.data.uid);
+                }
+              })
+              return
+            }
+          }
+        }
+      }
       api.getAppAnswerSave({
         data: saveModel,
         success: (res) => {
@@ -426,57 +735,49 @@ Page(Object.assign({
           wx.showModal({
             title: '提示',
             content: "保存成功！",
-            success: function(res) {
-
-            }
+            success: function(res) {}
           })
           _this.getDataInitialization(this.data.uid);
         }
       });
-      return;
-
-      var qmlist = _this.data.qmlist;
-      var answerList = [];
-      var setdata = [{
-        "id": "380",
-        "result": "44444"
-      }]
-      var dataList = JSON.stringify(setdata);
-      for (var i = 0; i < qmlist.length; i++) {
-        for (var m = 0; m < qmlist[i].item.length; m++) {
-          // if (qmlist[i][j].item[m].result == "") return;
-
-
-          answerList.push({
-            id: qmlist[i].item[m].id,
-            result: qmlist[i].item[m].result
-          })
-
-
-        }
-
-      }
-      _this.setData({
-        answerList: answerList
-      })
-      api.getAppAnswerSave({
-        data: {
-          id: _this.data.qlist.sub_id ? _this.data.qlist.sub_id : _this.data.qlist.id,
-
-          ans_status: "1",
-          // data: _this.data.answerList
-          data: dataList
-        },
-        success: (res) => {
-          console.log(res)
-        }
-      })
     },
     submitquestion: function() {
 
     },
     submitSaveitem: function() {
 
+    },
+    saveLocation() {
+      var _this = this;
+      console.log(JSON.stringify(this.data.anserResult));
+      var forinModel = this.data.anserResult;
+      for (var mkey in forinModel) {
+        for (var i = 0; i < _this.data.answerList.length; i++) {
+          if (_this.data.answerList[i].id == mkey) {
+            _this.data.answerList.splice(i, 1)
+          }
+        }
+        _this.data.answerList.push({
+          "id": mkey,
+          "result": forinModel[mkey]
+        });
+      }
+      console.log(_this.data.answerList)
+      var saveModel = {};
+      saveModel.id = this.data.uid;
+      saveModel.ans_status = "1";
+      for (var i = 0; i < this.data.answerList.length; i++) {
+        if (typeof(this.data.answerList[i].result) == 'object') {
+          this.data.answerList[i].result = JSON.stringify(this.data.answerList[i].result)
+        }
+      }
+      saveModel.data = JSON.stringify(_this.data.answerList);
+      api.getAppAnswerSave({
+        data: saveModel,
+        success: (res) => {
+          console.log(res);
+        }
+      });
     }
   },
   commonMixin));

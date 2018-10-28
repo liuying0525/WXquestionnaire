@@ -69,7 +69,7 @@ Page({
             withCredentials: true,
             success: udata => {
               wx.request({
-                url: 'http://218.81.97.41:58080/Api/User/register',
+                url: 'http://114.92.40.170:58080/Api/User/register',
                 method: 'POST',
                 header: {
                   'content-type': 'application/x-www-form-urlencoded'

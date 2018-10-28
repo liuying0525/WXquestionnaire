@@ -119,5 +119,11 @@ Page({
       }, massege);
     });
  
-  }
+  },
+  tapName: function (e) {
+    var uid = e.currentTarget.dataset.uid;
+    wx.navigateTo({
+      url: '../question/question?uid=' + uid
+    })
+  },
 })
