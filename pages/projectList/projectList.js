@@ -36,7 +36,7 @@ Page({
 				});
 			}
 		});
-
+   
 	},
 	/**
 	 * 生命周期函数--监听页面初次渲染完成
@@ -51,8 +51,8 @@ Page({
 	 * 生命周期函数--监听页面显示
 	 */
 	onShow: function() {
-		if(!wx.getStorageSync("userOpenid")) return;
-		this.initialization("加载中");
+	 if(!wx.getStorageSync("userOpenid")) return;
+		 this.initialization("加载中");
 	},
 	initialization: function(msg) {
 		this.getLeftArrary().then((res) => {
@@ -171,7 +171,8 @@ Page({
 					pageSize: _this.data.page_size
 				},
 				success: (res) => {
-					var pageCount = res.data.data.pageInfo.page;
+					var pageCount = res.data.data.pageInfo.page||0;
+         
 					var isM = pageCount > _this.data.page_current;
 					_this.setData({
 						page_count: pageCount,

@@ -25,6 +25,7 @@ Page(Object.assign({
       oitem: {},
       anserResult: {},
       multistageIni: "",
+      Hosturl: "https://ffcmc.cn",
       options: [{
           name: 'USA',
           value: '美国'
@@ -124,9 +125,26 @@ Page(Object.assign({
 
     },
     inputgetValue: function(e) {
+      var id = e.currentTarget.dataset.id;
       var txtValue = e.detail.value;
       var rsModel = this.data.anserResult;
-      rsModel[e.currentTarget.dataset.id] = txtValue;
+      if (id.indexOf("_") != -1) {
+        var nid = id.split('_')[0];
+        var nname = id.split('_')[1];
+        var model = rsModel[nid] ? rsModel[nid] : {
+          "addresname": "",
+          "locationName": ""
+        };
+        if (nname == "addresname") {
+          model.addresname = txtValue;
+        }
+        if (nname == "locationName") {
+          model.locationName = txtValue;
+        }
+        rsModel[nid] = model;
+      } else {
+        rsModel[id] = txtValue;
+      }
       this.saveTogData();
       this.setData({
         anserResult: rsModel
@@ -137,10 +155,13 @@ Page(Object.assign({
     saveTogData() {
       var gData = this.data.qmlist;
       for (var kid in this.data.anserResult) {
+        //debugger
         for (var k = 0; k < gData.length; k++) {
-          var itemInfo = gData[k].item.filter(o => o.id == kid);
-          if (itemInfo.length > 0) {
-            gData[k].item.filter(o => o.id == kid)[0].result = this.data.anserResult[kid];
+          if (gData[k].item != "") {
+            var itemInfo = gData[k].item.filter(o => o.id == kid);
+            if (itemInfo.length > 0) {
+              itemInfo[0].result = this.data.anserResult[kid];
+            }
           }
         }
       }
@@ -250,18 +271,22 @@ Page(Object.assign({
         anserResult: rsModel
       });
     },
-    gotoShow: function() {
+    gotoShow: function(e) {
       var _this = this;
-
-      if (this.data.tagaction) return;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var imgindex = e.currentTarget.dataset.imgindex;
+      var mindex = e.currentTarget.dataset.mindex || "";
+      var id = e.currentTarget.dataset.id;
       wx.chooseImage({
         count: 9, // 最多可以选择的图片张数，默认9
         sizeType: ['original', 'compressed'], // original 原图，compressed 压缩图，默认二者都有
         sourceType: ['album', 'camera'], // album 从相册选图，camera 使用相机，默认二者都有
         success: function(res) {
+          var hosturl = ""
           const tempFilePaths = res.tempFilePaths
           wx.uploadFile({
-            url: 'http://114.92.40.170:58080/Api/Answer/upload', //仅为示例，非真实的接口地址
+            url: _this.data.Hosturl + '/index.php/Api/Answer/upload', //仅为示例，非真实的接口地址
             filePath: tempFilePaths[0],
             header: {
               "Content-Type": "multipart/form-data",
@@ -272,23 +297,29 @@ Page(Object.assign({
               'openid': wx.getStorageSync("userOpenid")
             },
             success(res) {
-              const data = JSON.parse(res.data)
-              //do something
+              const data = JSON.parse(res.data);
+              var gData = _this.data.qmlist;
+              var rsModel = _this.data.anserResult;
+              var hosturl = _this.data.Hosturl + data.data.uploadPath;
+              var nobj = {
+                "src": hosturl,
+                tagaction: true
+              };
+              if (mindex != "") {
+                gData[lindex].item[oindex].item[mindex].imgList[imgindex] = hosturl;
+                gData[lindex].item[oindex].item[mindex].imgListObj[imgindex] = nobj;
+                rsModel[id] = gData[lindex].item[oindex].item[mindex].imgList;
+              } else {
+                gData[lindex].item[oindex].imgList[imgindex] = hosturl;
+                gData[lindex].item[oindex].imgListObj[imgindex] = nobj;
+                rsModel[id] = gData[lindex].item[oindex].imgList;
+              }
               _this.setData({
-                src: data.data.uploadPath
-              })
-              // api.uploadImage({
-              //   success(data){
-              //     console.log(data);
-              //     debugger
-              //   }
-              // })
+                qmlist: gData,
+                anserResult: rsModel,
+              });
             }
           })
-          // _this.setData({
-          //   tagaction: true
-          // })
-
         },
 
         fail: function() {
@@ -299,11 +330,25 @@ Page(Object.assign({
         }
       })
     },
-    chooseImage: function() {
+    chooseImage: function(e) {
 
       var _this = this;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var imgindex = e.currentTarget.dataset.imgindex;
+      var mindex = e.currentTarget.dataset.mindex || "";
+      var id = e.currentTarget.dataset.id;
+      var current = e.currentTarget.dataset.src;
+      var previewList = [];
+      var rsModel = _this.data.anserResult;
+      for (var kname in rsModel[id]) {
+        if (rsModel[id][kname] != "") {
+          previewList.push(rsModel[id][kname]);
+        }
+      }
       wx.previewImage({
-        urls: _this.data.src,
+        current: current,
+        urls: previewList
       });
     },
     getLocation: function(lindex, oindex, id, mindex) {
@@ -486,6 +531,7 @@ Page(Object.assign({
                 }
               }
               items.item[m].item = ncitem;
+              item.push(items.item[m]);
             } else {
               if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
                 item.push(items.item[m]);
@@ -672,10 +718,39 @@ Page(Object.assign({
           }
 
         }
-        if (modelItem[k].sub_cat == "fractions") {
-          if (modelItem[k].hasOwnProperty("result")) {
-            //mm.item[k].result = 50;
+        if (modelItem[k].sub_cat == "uploadimg") {
+
+          //2018.10.31 图片上传 需要分开数组
+          var imgList = [];
+          var imgListObj = [];
+
+          for (var mm = 0; mm < modelItem[k].option[0].option_name; mm++) {
+            imgList.push("");
+            imgListObj.push({
+              "src": "",
+              tagaction: false
+            });
           }
+
+          if (modelItem[k].result) {
+            var imgResult = JSON.parse(modelItem[k].result);
+            for (var ly = 0; ly < imgResult.length; ly++) {
+              imgListObj[ly] = {
+                "src": imgResult[ly],
+                tagaction: imgResult[ly] ? true : false
+              }
+            }
+            imgList = imgResult;
+          }
+
+          modelItem[k].imgList = imgList;
+          modelItem[k].imgListObj = imgListObj;
+          var resid = modelItem[k].id;
+          var model = {};
+          model[resid] = imgList;
+          this.setData({
+            anserResult: model
+          });
         }
         modelItem.sort(function(a, b) {
           return a.serial_number - b.serial_number;
@@ -777,7 +852,11 @@ Page(Object.assign({
       if (e.target.dataset.save == "2") {
         for (var q = 0; q < _this.data.mustList.length; q++) {
           for (var b = 0; b < _this.data.answerList.length; b++) {
-            if (!_this.data.answerList[b][_this.data.mustList[q].id]) {
+
+            // if (!_this.data.answerList[b][_this.data.mustList[q].id]) {
+            var ansMolde = _this.data.answerList.filter(o => o.id == _this.data.mustList[q].id);
+            if (ansMolde.length == 0 || ansMolde[0].result == "") {
+              // debugger
               wx.showModal({
                 title: '提示',
                 content: "题目:" + _this.data.mustList[q].questionname + "为必答题，请作答后再提交",
@@ -800,6 +879,7 @@ Page(Object.assign({
             success: function(res) {}
           })
           _this.getDataInitialization(this.data.uid);
+          if (e.target.dataset.save == "2") {}
         }
       });
     },

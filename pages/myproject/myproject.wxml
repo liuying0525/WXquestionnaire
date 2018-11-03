@@ -11,7 +11,7 @@
     <text>你还没有项目哦~</text>
   </view>
   <view wx:else>
-    <scroll-view scroll-y class="orderInfo-item">
+    <view class="orderInfo-item">
       <!-- <view class="orderInfo-item" wx:for="{{sendList}}" wx:key="index"> -->
       <!-- {{item.content}} -->
       <block wx:for="{{sendList}}" wx:key="{{index}}">
@@ -24,6 +24,6 @@
           <image class='recommendeds_right_right' wx:if="{{item.status==2}}" src="../../../images/edit.png" class="editicon"></image>
         </view>
       </block>
-    </scroll-view>
+    </view>
   </view>
 </view>

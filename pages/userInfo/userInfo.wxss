@@ -45,7 +45,7 @@ flex-direction:column;
 }
 .userinfobg{
   width:100%;
-  height:150px;
+  height:500rpx;
 }
 .usermotto text{
   font-size:42rpx;

@@ -1,3 +1,4 @@
+import api from '../../api/api.js';
 //index.js
 //获取应用实例
 const app = getApp()
@@ -12,8 +13,8 @@ Page({
       "title": "个人资料",
       "isShow": false,
       "userLevel": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").level : "",
-      "iphone": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").mobile : "",
-      "address": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").addr : "",
+      "mobile": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").mobile : "",
+      "addr": wx.getStorageSync("userInfo") ? wx.getStorageSync("userInfo").addr : "",
     }, {
       "title": "公司简介",
       "isShow": false,
@@ -21,7 +22,7 @@ Page({
     }]
   },
   onShow: function() {
-    if (!wx.getStorageSync("userInfo")) return;
+    // if (!wx.getStorageSync("userInfo")) return;
     var ndata = this.data.uitem;
     ndata[0].userLevel = wx.getStorageSync("userInfo").level;
     this.setData({
@@ -61,6 +62,10 @@ Page({
     var pdata = e.detail.userInfo;
     var that = this;
     app.globalData.userInfo = pdata;
+    this.setData({
+      userInfo: e.detail.userInfo,
+      hasUserInfo: true
+    })
     wx.login({
       success: (data) => {
         if (data.code) {
@@ -69,22 +74,27 @@ Page({
             withCredentials: true,
             success: udata => {
               wx.request({
-                url: 'http://114.92.40.170:58080/Api/User/register',
+                url: 'https://ffcmc.cn/index.php/Api/User/register',
                 method: 'POST',
                 header: {
                   'content-type': 'application/x-www-form-urlencoded'
                 },
                 data: pdata,
                 success: function(data) {
+                  var ndata = that.data.uitem;
+                  ndata[0].userLevel = wx.getStorageSync("userInfo").level;
                   app.globalData.userOpenid = data.data.data.openid;
                   wx.setStorageSync("userOpenid", data.data.data.openid);
                   app.globalData.userInfo.level = data.data.data.level;
+                  ndata[0].userLevel = data.data.data.level;
                   app.globalData.userInfo.addr = data.data.data.addr;
+                  ndata[0].addr = data.data.data.addr;
                   app.globalData.userInfo.mobile = data.data.data.mobile;
+                  ndata[0].mobile = data.data.data.mobile;
                   wx.setStorageSync("userInfo", app.globalData.userInfo);
                   that.setData({
-                    userInfo: app.globalData.userInfo,
-                    hasUserInfo: true
+                    uitem: ndata
+                    
                   });
                   //									wx.navigateBack({
                   //										delta: 1
@@ -124,17 +134,65 @@ Page({
   bindAddressInput: function(e) {
     var _this = this;
     var ndata = _this.data.uitem;
-    ndata[0].address = e.detail.value;
-    _this.setData({
-      uitem: ndata
-    })
+    ndata[0].addr = e.detail.value;
+    api.getAppEditInfo({
+      data: {
+        "addr": e.detail.value
+      },
+      success: res => {
+        app.globalData.userInfo.addr = e.detail.value
+
+        _this.setData({
+          uitem: ndata
+        });
+        setTimeout(() => {
+          return wx.showToast({
+            title: '地址保存成功',
+            icon: 'success',
+            mask: true,
+            duration: 2000
+          });
+        });
+      }
+    });
   },
   bindIphoneInput: function(e) {
     var _this = this;
     var ndata = _this.data.uitem;
-    ndata[0].iphone = e.detail.value;
-    _this.setData({
-      uitem: ndata
-    })
+    ndata[0].mobile = e.detail.value;
+    if (!(/^1[34578]\d{9}$/.test(e.detail.value))&&e.detail.value!="") {
+      wx.showModal({
+        title: '提示',
+        content: "手机号输入错误请重新输入",
+        success: function(res) {
+          ndata[0].mobile = ""
+          _this.setData({
+            uitem: ndata
+          });
+        }
+      })
+      return false;
+    } else {
+      api.getAppEditInfo({
+        data: {
+          "mobile": e.detail.value
+        },
+        success: res => {
+          app.globalData.userInfo.mobile = e.detail.value
+        
+          _this.setData({
+            uitem: ndata
+          });
+          setTimeout(() => {
+            return wx.showToast({
+              title: '电话保存成功',
+              icon: 'success',
+              mask: true,
+              duration: 2000
+            });
+          });
+        }
+      });
+    }
   }
 })

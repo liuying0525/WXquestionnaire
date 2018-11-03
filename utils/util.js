@@ -27,5 +27,6 @@ const getSystemInfo=(params)=>{
 module.exports = {
   formatTime: formatTime,
   getSystemInfo,
-  formatNumber
+  formatNumber,
+
 }

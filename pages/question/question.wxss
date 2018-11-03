@@ -165,3 +165,6 @@ transform:scale(0.7);
     position: relative;
     /* height: 500rpx */
 }
+.question_bigitem.black{
+  position: relative
+}

@@ -9,7 +9,7 @@ Page({
   data: {
     navTab:['全部','待提交','已完成'],
     currentTab:0,
-    sendList:[],
+    sendList:[]
   },
   select:{
     page:1,
@@ -63,14 +63,38 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function () {
-
+   this.data.sendList=[];
+  
+    this.select={
+      page: 1,
+      size: 6,
+      isEnd: false
+    }
+    this.getData().then(data => { 
+   
+    });
+    wx.stopPullDownRefresh();
   },
 
   /**
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
-
+    // console.log("this.data.isMore=" + this.data.isMore);
+    if (!!this.select.isEnd) {
+      return wx.showToast({
+        title: '没有更多数据'
+      });
+    }
+    var cpage = this.select.page + 1;
+    this.setData({
+      page: cpage,
+    });
+    this.getData("加载更多数据").then(data => { //
+      this.setData({
+        sendList: this.data.sendList.concat(data)
+      });
+    });
   },
 
   /**
@@ -102,11 +126,13 @@ Page({
       api.getAppAnswerLst({
         data: { p: _this.select.page, pageSize: _this.select.size, status: type },
         success: (res) => { 
-            var content = res.data.data.data        
+            var content = res.data.data.data;
+          var page_cuts = res.data.data.pageInfo.count / _this.select.size        
               _this.setData({
-                sendList: (_this.data.sendList).concat(content)
+                // sendList: (_this.data.sendList).concat(content)
+                sendList:content
               })
-              if (content.length > 0) {
+          if (page_cuts > _this.select.page) {
                 _this.select.page++
               } else {
                 _this.select.isEnd = true;
