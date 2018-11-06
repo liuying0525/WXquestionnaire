@@ -1,9 +1,9 @@
 /* pages/myproject/myproject.wxss */
-.tabNav{z-index: 4; position: fixed; top:0;left:0; width:100%; height:80rpx; line-height: 80rpx; background: #fff; display: flex; padding:0 30rpx; border-bottom:1px solid #f5f5f5; box-sizing: border-box; }
-.tabNav> view{text-align: center; margin-right:150rpx;}
+.tabNav{z-index: 4; position: fixed; top:0;left:0; width:100%; height:80rpx; line-height: 50rpx; background: #fff; display: flex; padding:0 30rpx; border-bottom:1px solid #f5f5f5; box-sizing: border-box; justify-content: space-around}
+.tabNav> view{text-align: center; }
 .tabNav> view:last-child{ margin-right: 0;}
-.tabNav> view text{padding:0 15rpx; height:75rpx; display:inline-block;}
-.tabNav .cur text{ border-bottom:5rpx solid #36ccf9; color:#000;}
+.tabNav> view text{padding:0 15rpx; height:75rpx; display:inline-block;font-size:36rpx;}
+.tabNav .cur text{ border-bottom:5rpx solid rgb(0,57,165); color:rgb(0,57,165);}
 .orderInfo{
    background-color: #f4f5f7;
  height:100%;
@@ -38,16 +38,25 @@ height:100rpx;
   display: flex;
   flex-flow: row;
   justify-content: space-between;
-  padding:20rpx 20rpx;
+  padding:30rpx 20rpx;
   margin-bottom:1px;
   box-sizing: border-box;
  font-size:32rpx;
  align-items:flex-end;
+ padding-left:40rpx;
   
 }
 .classify_recommendeds_right text{
   margin:8rpx 0;
+  color:#999;
+  font-size:30rpx
 }
+.classify_recommendeds_right text:nth-of-type(1){
+  font-size:32rpx;
+color:rgb(46,46,46);
+
+}
+
 .recommendeds_right_left{
    display: flex;
   flex-flow: column;

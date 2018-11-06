@@ -5,7 +5,7 @@
   align-items: center;
   position: absolute;
   left:50%;
-  top:10%;
+  top:15%;
   transform: translate(-50%);
 }
 
@@ -48,21 +48,21 @@ flex-direction:column;
   height:500rpx;
 }
 .usermotto text{
-  font-size:42rpx;
+  font-size:36rpx;
 
 }
 
 view[data-index="0"] image{
-  width:48rpx;
-  height:38rpx;
+  width:45rpx;
+  height:34rpx;
   margin-right:20rpx;
 
 }
 
 view[data-index="1"] image{
 
-  width:58rpx;
-  height:50rpx;
+  width:57rpx;
+  height:40rpx;
   margin-right:16rpx;
 margin-left:-6rpx;
 

@@ -7,7 +7,7 @@
 <view class='orderInfo'>
   <!-- <view class='orderInfo-item' wx:for="{{sendList}}" wx:key="index">{{item.content}}</view> -->
   <view wx:if="{{sendList.length==0}}" class="noneimage">
-    <image src='../../../images/none.png'></image>
+    <image src='../../images/none.png'></image>
     <text>你还没有项目哦~</text>
   </view>
   <view wx:else>

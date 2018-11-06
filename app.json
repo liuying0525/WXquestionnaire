@@ -2,15 +2,10 @@
   "pages": [
     "pages/projectList/projectList",
     "pages/question/question",
-    "pages/wx-cropper/wx-cropper",
     "pages/loCation/Location",
-    
-   
     "pages/myproject/myproject",
     "pages/userInfo/userInfo",
     "pages/logs/logs"
-   
-   
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -1,4 +1,8 @@
 /* pages/projectList/projectList.wxss */
+page{
+  background-color:rgb(240,244,246);
+padding-top:6rpx;
+}
 .classify_page {
   width: 100%;
   display: flex;
@@ -6,6 +10,7 @@
   justify-content: space-between;
   /*position: relative;*/
   background-color: #f4f5f7;
+ 
 }
 
 .classify_page_left {
@@ -13,16 +18,17 @@
   /* height: 100%; */
   position: fixed;
   overflow-y: auto;
-  background-color: white;
+  background-color: rgb(240,244,246);
   z-index: 4;
+ 
 }
 
 .classify_page_right {
   width: 82%;
   height: 100%;
-  background-color: #f4f5f7;
-  margin-left: 152rpx;
-  margin-right: 10rpx;
+  background-color: white;
+  margin-left: 63px;
+  padding-left:40rpx;
 
 }
 
@@ -35,7 +41,7 @@
   display: flex;
   flex-flow: row;
   justify-content: space-between;
-  padding:20rpx 20rpx;
+  padding:28rpx 20rpx;
   box-sizing: border-box;
  font-size:32rpx;
  align-items:flex-end;
@@ -48,7 +54,7 @@
   color:#999;
 }
 .classify_recommendeds_right text:nth-of-type(1){
- color:#343434;
+ color:rgb(46,46,46);
 }
 .recommendeds_right_left{
    display: flex;
@@ -87,13 +93,14 @@
 .classify_recommendeds_left {
   height: 90rpx;
   width: 100%;
-  font-size: 30rpx;
+  font-size: 32rpx;
   text-align: center;
-  line-height: 80rpx;
-  background-color: white;
-  border-bottom-style: solid;
-  border-bottom-width: 6rpx;
-  border-bottom-color: #f4f5f7;
+  line-height: 90rpx;
+  background-color: rgb(240,244,246);
+  border-left:8rpx solid rgb(240,244,246);
+  color:rgb(188,188,189);
+padding:10rpx 0;
+
 }
 
 /*其他（非一级）一级分类的二级分类*/
@@ -145,8 +152,10 @@
 }
 
 .active{
-	background:blue;
-	color:white;
+	background:white;
+  border-left:8rpx solid blue;
+  color:rgb(46,46,46);
+ 
 }
 .editicon{
 width:35rpx;

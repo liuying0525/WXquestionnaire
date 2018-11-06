@@ -10,9 +10,14 @@ Page(Object.assign({
     data: {
       uid: "",
       qlist: {},
+      questiontitle: "",
+      questioncontent: "",
       qmlist: [],
       mustList: [],
       itemModList: [],
+      ratio: 102 / 152,
+      originUrl: '',
+      cropperResult: '',
       tagaction: false,
       addres: "",
       deviceWidth: "",
@@ -303,7 +308,8 @@ Page(Object.assign({
               var hosturl = _this.data.Hosturl + data.data.uploadPath;
               var nobj = {
                 "src": hosturl,
-                tagaction: true
+                tagaction: true,
+
               };
               if (mindex != "") {
                 gData[lindex].item[oindex].item[mindex].imgList[imgindex] = hosturl;
@@ -330,6 +336,12 @@ Page(Object.assign({
         }
       })
     },
+  getCropperImg(e) {
+    this.setData({
+      originUrl: '',
+      cropperResult: e.detail.url
+    })
+  },
     chooseImage: function(e) {
 
       var _this = this;
@@ -350,6 +362,47 @@ Page(Object.assign({
         current: current,
         urls: previewList
       });
+    },
+    deleteImage: function(e) {
+      var _this = this;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var imgindex = e.currentTarget.dataset.imgindex;
+      var mindex = e.currentTarget.dataset.mindex || "";
+      var id = e.currentTarget.dataset.id;
+      var gData = this.data.qmlist;
+      var current = e.currentTarget.dataset.src;
+      var previewList = [];
+      var rsModel = _this.data.anserResult;
+      wx.showModal({
+        title: '提示',
+        content: '确定要删除此图片吗？',
+        success: function(res) {
+          if (res.confirm) {
+            var bindItem = [];
+            var bindItems = [];
+            if (mindex != "") {
+              bindItem = gData[lindex].item[oindex].item[mindex].imgListObj;
+              bindItems = gData[lindex].item[oindex].item[mindex].imgList;
+            } else {
+              bindItem = gData[lindex].item[oindex].imgListObj;
+              bindItems = gData[lindex].item[oindex].imgList;
+            }
+            bindItem.splice(imgindex, 1, {
+              "src": "",
+              tagaction: false
+            });
+            bindItems.splice(imgindex, 1,"");
+            rsModel[id] = bindItems;
+            _this.setData({
+              qmlist: gData,
+              anserResult: rsModel,
+            });
+          } else if (res.cancel) {
+            return false;
+          }
+        }
+      })
     },
     getLocation: function(lindex, oindex, id, mindex) {
       let vm = this;
@@ -398,6 +451,26 @@ Page(Object.assign({
         }
       })
     },
+  uploadTap() {
+    let _this = this
+    wx.chooseImage({
+      count: 1, // 默认9
+      sizeType: ['original'], // 可以指定是原图还是压缩图，默认二者都有
+      sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+      success(res) {
+        _this.setData({
+          originUrl: res.tempFilePaths[0],
+          cropperResult: ''
+        })
+      }
+    })
+  },
+  getCropperImg(e) {
+    this.setData({
+      originUrl: '',
+      cropperResult: e.detail.url
+    })
+  },
     getUserLocation: function(lindex, oindex, id, mindex) {
       let vm = this;
       wx.getSetting({
@@ -490,6 +563,10 @@ Page(Object.assign({
         var nlist = [];
         var itemmodList = [];
         var AnserList = [];
+        this.setData({
+          questiontitle: res.sub_name || '',
+          questioncontent: res.description || ''
+        })
 
         for (var i = 0; i < dist.length; i++) {
 
@@ -742,11 +819,10 @@ Page(Object.assign({
             }
             imgList = imgResult;
           }
-
           modelItem[k].imgList = imgList;
           modelItem[k].imgListObj = imgListObj;
           var resid = modelItem[k].id;
-          var model = {};
+          var model = this.data.anserResult;
           model[resid] = imgList;
           this.setData({
             anserResult: model
@@ -876,10 +952,20 @@ Page(Object.assign({
           wx.showModal({
             title: '提示',
             content: "保存成功！",
-            success: function(res) {}
+            success: function(res) {
+              if (e.target.dataset.save == "2") {
+                wx.switchTab({
+                  url: '/pages/myproject/myproject',
+                  fail: function() {}
+                });
+              }
+
+            }
           })
           _this.getDataInitialization(this.data.uid);
-          if (e.target.dataset.save == "2") {}
+
+
+
         }
       });
     },
