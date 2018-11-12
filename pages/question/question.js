@@ -16,8 +16,6 @@ Page(Object.assign({
       mustList: [],
       itemModList: [],
       ratio: 102 / 152,
-      originUrl: '',
-      cropperResult: '',
       tagaction: false,
       addres: "",
       deviceWidth: "",
@@ -283,6 +281,38 @@ Page(Object.assign({
       var imgindex = e.currentTarget.dataset.imgindex;
       var mindex = e.currentTarget.dataset.mindex || "";
       var id = e.currentTarget.dataset.id;
+
+
+      wx.chooseImage({
+        count: 1, // 默认9
+        sizeType: ['original'], // 可以指定是原图还是压缩图，默认二者都有
+        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+        success(res) {
+          //console.log("1");
+          console.log("res=" + JSON.stringify(res));
+
+          var gData = _this.data.qmlist;
+          var rsModel = _this.data.anserResult;
+          var hosturl = res.tempFilePaths[0];
+          console.log("hosturl=" + hosturl);
+          if (mindex != "") {
+            gData[lindex].item[oindex].item[mindex].imgListObj[imgindex].upsrc = hosturl;
+            gData[lindex].item[oindex].item[mindex].imgListObj[imgindex].tagaction = true;
+            rsModel[id] = gData[lindex].item[oindex].item[mindex].imgList;
+          } else {
+            gData[lindex].item[oindex].imgListObj[imgindex].upsrc = hosturl;
+            gData[lindex].item[oindex].imgListObj[imgindex].tagaction = true;
+            rsModel[id] = gData[lindex].item[oindex].imgList;
+          }
+          //debugger
+          _this.setData({
+            qmlist: gData,
+            anserResult: rsModel
+          });
+        }
+      });
+
+      return false;
       wx.chooseImage({
         count: 9, // 最多可以选择的图片张数，默认9
         sizeType: ['original', 'compressed'], // original 原图，compressed 压缩图，默认二者都有
@@ -336,12 +366,52 @@ Page(Object.assign({
         }
       })
     },
-  getCropperImg(e) {
-    this.setData({
-      originUrl: '',
-      cropperResult: e.detail.url
-    })
-  },
+    getCropperImg(e) {
+      var _this = this;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var imgindex = e.currentTarget.dataset.imgindex;
+      var mindex = e.currentTarget.dataset.mindex || "";
+      var id = e.currentTarget.dataset.id;
+
+      wx.uploadFile({
+        url: _this.data.Hosturl + '/index.php/Api/Answer/upload', //仅为示例，非真实的接口地址
+        filePath: e.detail.url,
+        header: {
+          "Content-Type": "multipart/form-data",
+          'accept': 'application/json',
+        },
+        name: 'file',
+        formData: {
+          'openid': wx.getStorageSync("userOpenid")
+        },
+        success(res) {
+          const data = JSON.parse(res.data);
+          var gData = _this.data.qmlist;
+          var rsModel = _this.data.anserResult;
+          var hosturl = _this.data.Hosturl + data.data.uploadPath;
+          var nobj = {
+            "src": hosturl,
+            tagaction: true,
+            "upsrc":""
+          };
+          if (mindex != "") {
+            gData[lindex].item[oindex].item[mindex].imgList[imgindex] = hosturl;
+            gData[lindex].item[oindex].item[mindex].imgListObj[imgindex] = nobj;
+            rsModel[id] = gData[lindex].item[oindex].item[mindex].imgList;
+          } else {
+            gData[lindex].item[oindex].imgList[imgindex] = hosturl;
+            gData[lindex].item[oindex].imgListObj[imgindex] = nobj;
+            rsModel[id] = gData[lindex].item[oindex].imgList;
+          }
+          _this.setData({
+            qmlist: gData,
+            anserResult: rsModel,
+          });
+        }
+      });
+
+    },
     chooseImage: function(e) {
 
       var _this = this;
@@ -390,10 +460,14 @@ Page(Object.assign({
             }
             bindItem.splice(imgindex, 1, {
               "src": "",
-              tagaction: false
+              tagaction: false,
+              "upsrc": ""
             });
-            bindItems.splice(imgindex, 1,"");
+            bindItems.splice(imgindex, 1, "");
             rsModel[id] = bindItems;
+
+            _this.savequestion(e);
+
             _this.setData({
               qmlist: gData,
               anserResult: rsModel,
@@ -451,26 +525,6 @@ Page(Object.assign({
         }
       })
     },
-  uploadTap() {
-    let _this = this
-    wx.chooseImage({
-      count: 1, // 默认9
-      sizeType: ['original'], // 可以指定是原图还是压缩图，默认二者都有
-      sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
-      success(res) {
-        _this.setData({
-          originUrl: res.tempFilePaths[0],
-          cropperResult: ''
-        })
-      }
-    })
-  },
-  getCropperImg(e) {
-    this.setData({
-      originUrl: '',
-      cropperResult: e.detail.url
-    })
-  },
     getUserLocation: function(lindex, oindex, id, mindex) {
       let vm = this;
       wx.getSetting({
@@ -803,9 +857,12 @@ Page(Object.assign({
 
           for (var mm = 0; mm < modelItem[k].option[0].option_name; mm++) {
             imgList.push("");
+
+            // 增加控制图片裁剪 2018.11.12
             imgListObj.push({
               "src": "",
-              tagaction: false
+              tagaction: false,
+              "upsrc": ""
             });
           }
 
@@ -814,7 +871,8 @@ Page(Object.assign({
             for (var ly = 0; ly < imgResult.length; ly++) {
               imgListObj[ly] = {
                 "src": imgResult[ly],
-                tagaction: imgResult[ly] ? true : false
+                tagaction: imgResult[ly] ? true : false,
+                "upsrc": "", //imgResult[ly] ? imgResult[ly] : ""
               }
             }
             imgList = imgResult;
