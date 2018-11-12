@@ -5,7 +5,9 @@
     "pages/loCation/Location",
     "pages/myproject/myproject",
     "pages/userInfo/userInfo",
-    "pages/logs/logs"
+    "pages/logs/logs",
+    "pages/coropper/index"
+    
   ],
   "window": {
     "backgroundTextStyle": "light",
