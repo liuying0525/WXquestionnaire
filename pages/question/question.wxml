@@ -67,11 +67,11 @@
                       </view>
                     </block>
                     <block wx:else>
-                      <view class='cropper' wx:if="{{imgitem.upsrc}}">
+                      <view class='cropper' wx:if="{{imgitem.upsrc.length>0  && imgitem.src.length==0}}">
                         <cropper data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}" data-imgindex="{{imgindex}}" bind:getCropperImg="getCropperImg" url="{{imgitem.upsrc}}" ratio="{{ ratio }}"></cropper>
                       </view>
                       <view class='show-image-view' data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}" data-imgindex="{{imgindex}}" bindtap="chooseImage" data-src="{{imgitem.src}}" bindlongpress="deleteImage">
-                        <image class="show-image" mode="aspectFitf" src='{{imgitem.src}}'>
+                        <image class="show-image" mode="aspectFitf" src='{{imgitem.upsrc||imgitem.src}}'>
                         </image>
                       </view>
                     </block>
@@ -139,11 +139,11 @@
                             </view>
                           </block>
                           <block wx:else>
-                           <view class='cropper' wx:if="{{imgitem.upsrc}}">
+                           <view class='cropper' wx:if="{{imgitem.upsrc.length>0 && imgitem.src.length==0 }}">
                         <cropper  data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bind:getCropperImg="getCropperImg" url="{{imgitem.upsrc}}" ratio="{{ ratio }}"></cropper>
                       </view>
                             <view class='show-image-view' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bindtap="chooseImage" >
-                              <image class="show-image" mode="aspectFitf" src="{{src}}">
+                              <image class="show-image" mode="aspectFitf" src="{{imgitem.upsrc||imgitem.src}}">
                               </image>
                             </view>
                           </block>

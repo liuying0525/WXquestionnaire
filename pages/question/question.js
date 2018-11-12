@@ -339,7 +339,7 @@ Page(Object.assign({
               var nobj = {
                 "src": hosturl,
                 tagaction: true,
-
+                "upsrc": ""
               };
               if (mindex != "") {
                 gData[lindex].item[oindex].item[mindex].imgList[imgindex] = hosturl;
@@ -389,12 +389,13 @@ Page(Object.assign({
           const data = JSON.parse(res.data);
           var gData = _this.data.qmlist;
           var rsModel = _this.data.anserResult;
-          var hosturl = _this.data.Hosturl + data.data.uploadPath;
+          var hosturl = _this.data.Hosturl + data.data.uploadPath; //e.detail.url; 
           var nobj = {
             "src": hosturl,
             tagaction: true,
-            "upsrc":""
+            "upsrc": e.detail.url
           };
+          //debugger
           if (mindex != "") {
             gData[lindex].item[oindex].item[mindex].imgList[imgindex] = hosturl;
             gData[lindex].item[oindex].item[mindex].imgListObj[imgindex] = nobj;
@@ -404,6 +405,7 @@ Page(Object.assign({
             gData[lindex].item[oindex].imgListObj[imgindex] = nobj;
             rsModel[id] = gData[lindex].item[oindex].imgList;
           }
+
           _this.setData({
             qmlist: gData,
             anserResult: rsModel,
@@ -467,6 +469,7 @@ Page(Object.assign({
             rsModel[id] = bindItems;
 
             _this.savequestion(e);
+
 
             _this.setData({
               qmlist: gData,
@@ -1003,23 +1006,27 @@ Page(Object.assign({
           }
         }
       }
+
       api.getAppAnswerSave({
         data: saveModel,
         success: (res) => {
           console.log(res);
-          wx.showModal({
-            title: '提示',
-            content: "保存成功！",
-            success: function(res) {
-              if (e.target.dataset.save == "2") {
-                wx.switchTab({
-                  url: '/pages/myproject/myproject',
-                  fail: function() {}
-                });
-              }
+          if (e.type != "longpress") {
+            wx.showModal({
+              title: '提示',
+              content: "保存成功！",
+              success: function(res) {
+                if (e.target.dataset.save == "2") {
+                  wx.switchTab({
+                    url: '/pages/myproject/myproject',
+                    fail: function() {}
+                  });
+                }
 
-            }
-          })
+              }
+            })
+          }
+
           _this.getDataInitialization(this.data.uid);
 
 
