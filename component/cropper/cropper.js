@@ -54,7 +54,7 @@ Component({
       let _this = this
       wx.chooseImage({
         count: 1, // 默认9
-        sizeType: ['original'], // 可以指定是原图还是压缩图，默认二者都有
+        sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
         success(res) {
           _this.initImg( res.tempFilePaths[0]);
@@ -87,7 +87,14 @@ Component({
       ctx.translate(movex, movey);
       ctx.rotate(cropData.rotate * Math.PI / 180);
       ctx.translate(-movex, -movey);
-      
+ 
+      // if (_this.data.originImg.width > 500 || _this.data.originImg.height>500){
+      //   let scale = _this.data.originImg.width / _this.data.originImg.height
+      //   _this.data.originImg.width=500
+      //   _this.data.originImg.height = 500 / scale
+       
+      // }
+
       ctx.drawImage(_this.data.originImg.url, (cropData.offsetX + x) * 2, (cropData.offsetY + y) * 2, _this.data.originImg.width * 2 * cropData.scale, _this.data.originImg.height * 2 * cropData.scale);
       ctx.restore();
       ctx.draw(false, ()=> {
@@ -115,9 +122,14 @@ Component({
       wx.getImageInfo({
         src: url,
         success(resopne) {
+          debugger
           console.log(resopne);
           let innerAspectRadio = resopne.width / resopne.height;
+          if (resopne.width > 500 || resopne.height > 500) {
+            debugger
+            _this.data.width = 250;
 
+          }
           if (innerAspectRadio < _this.data.width / _this.data.height) {
             _this.setData({
               originImg: {
@@ -134,6 +146,7 @@ Component({
                 rotate: 0
               },
             })
+          
           } else {
             _this.setData({
               originImg: {

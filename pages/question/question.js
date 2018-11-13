@@ -285,7 +285,7 @@ Page(Object.assign({
 
       wx.chooseImage({
         count: 1, // 默认9
-        sizeType: ['original'], // 可以指定是原图还是压缩图，默认二者都有
+        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
         success(res) {
           //console.log("1");
@@ -304,7 +304,7 @@ Page(Object.assign({
             gData[lindex].item[oindex].imgListObj[imgindex].tagaction = true;
             rsModel[id] = gData[lindex].item[oindex].imgList;
           }
-          //debugger
+  
           _this.setData({
             qmlist: gData,
             anserResult: rsModel
@@ -373,7 +373,7 @@ Page(Object.assign({
       var imgindex = e.currentTarget.dataset.imgindex;
       var mindex = e.currentTarget.dataset.mindex || "";
       var id = e.currentTarget.dataset.id;
-
+      console.log(e.detail.url)
       wx.uploadFile({
         url: _this.data.Hosturl + '/index.php/Api/Answer/upload', //仅为示例，非真实的接口地址
         filePath: e.detail.url,
@@ -386,6 +386,7 @@ Page(Object.assign({
           'openid': wx.getStorageSync("userOpenid")
         },
         success(res) {
+         
           const data = JSON.parse(res.data);
           var gData = _this.data.qmlist;
           var rsModel = _this.data.anserResult;
@@ -682,6 +683,7 @@ Page(Object.assign({
           var items = resultList[i];
           var item = [];
           for (var m = 0, n = items.item.length; m < n; m++) {
+        
             if (items.item[m].sub_cat == "single") {
               if (items.item[m].result != null && items.item[m].result != "" && items.item[m].result != "0") {
                 var options = items.item[m].option.filter(o => o.id == items.item[m].result)[0];
