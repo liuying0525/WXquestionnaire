@@ -176,7 +176,7 @@
     </view>
     <view style='flex-direction:row'>
       <button type="default" size="12" class='buttontop' bindtap="savequestion" data-save="1">保存</button>
-      <button type="default" size="12" class='buttontop'>取消</button>
+      <button type="default" size="12" class='buttontop' bindtap="exit">取消</button>
     </view>
 
     <button type="primary" size="default" class="primary" bindtap="savequestion" data-save="2">提交</button>

@@ -959,6 +959,9 @@ Page(Object.assign({
     onShareAppMessage: function() {
 
     },
+  exit:function(){
+    wx.navigateBack({ changed: false });
+  },
     savequestion: function(e) {
 
       var _this = this;
