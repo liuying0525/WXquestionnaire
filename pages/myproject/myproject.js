@@ -91,9 +91,9 @@ Page({
       page: cpage,
     });
     this.getData("加载更多数据").then(data => { //
-      this.setData({
-        sendList: this.data.sendList.concat(data)
-      });
+      // this.setData({
+      //   sendList: this.data.sendList.concat(data)
+      // });
     });
   },
 
@@ -104,6 +104,7 @@ Page({
 
   },
   currentTab:function(e){
+    // debugger
     if(this.data.currentTab==e.currentTarget.dataset.idx){
       return;
     }
@@ -116,23 +117,29 @@ Page({
       isEnd:false
     }
     this.data.sendList=[];
+    this.setData({
+      sendList:[]
+    })
     this.getData()
   },
   getData: function (massege){
     var _this = this;
-    // if (!_this.data.isEnd) return;
+    // if (_this.select.isEnd) return;
     var type = this.data.currentTab;
     return new Promise((resolve, reject) => {
       api.getAppAnswerLst({
         data: { p: _this.select.page, pageSize: _this.select.size, status: type },
         success: (res) => { 
             var content = res.data.data.data;
-          var page_cuts = res.data.data.pageInfo.count / _this.select.size        
+          var page_cuts = res.data.data.pageInfo.count / _this.select.size 
+          if (_this.select.isEnd) return;       
               _this.setData({
-                // sendList: (_this.data.sendList).concat(content)
-                sendList:content
+                sendList: (_this.data.sendList).concat(content)
+                // sendList:content
               })
-          if (page_cuts > _this.select.page) {
+              // debugger
+          // if (page_cuts > _this.select.page) {
+          if (res.data.data.pageInfo.page > _this.select.page) {
                 _this.select.page++
               } else {
                 _this.select.isEnd = true;

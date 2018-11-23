@@ -293,7 +293,7 @@ Page({
 	tapName: function(e) {
 		var uid = e.currentTarget.dataset.uid;
 		wx.navigateTo({
-			url: '../question/question?uid=' + uid
+			url: '../question/question?uid=' + uid+'&que=1'
 		})
 	},
 	/**

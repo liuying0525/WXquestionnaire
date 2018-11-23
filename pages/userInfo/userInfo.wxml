@@ -17,7 +17,7 @@
           <text>{{item.title}}</text>
         </view>
         <view wx:if="{{item.isShow==true}}" class='showcontent'>
-          <text>用户权限等级：{{item.userLevel}}</text>
+          <text>用户权限等级：{{item.level_desc}}</text>
           <view>
            电话号码：<input type="number" placeholder='请输入您的电话' value="{{item.mobile}}" confirm-type="done" bindblur='bindIphoneInput'></input> </view>
           <view> 地址： <input type="text" placeholder='请输入您的地址' value="{{item.addr}}" confirm-type="done" bindblur='bindAddressInput'></input>

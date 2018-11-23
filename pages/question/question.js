@@ -13,6 +13,7 @@ Page(Object.assign({
       questiontitle: "",
       questioncontent: "",
       qmlist: [],
+      quecont: 0,
       mustList: [],
       itemModList: [],
       ratio: 102 / 152,
@@ -28,6 +29,7 @@ Page(Object.assign({
       oitem: {},
       anserResult: {},
       multistageIni: "",
+      multistageAnser: [],
       Hosturl: "https://ffcmc.cn",
       options: [{
           name: 'USA',
@@ -158,7 +160,6 @@ Page(Object.assign({
     saveTogData() {
       var gData = this.data.qmlist;
       for (var kid in this.data.anserResult) {
-        //debugger
         for (var k = 0; k < gData.length; k++) {
           if (gData[k].item != "") {
             var itemInfo = gData[k].item.filter(o => o.id == kid);
@@ -229,13 +230,31 @@ Page(Object.assign({
       var sarrary = new Array(maxDefault);
       var saveValue = "";
       sarrary[pindex] = pvalue;
+      if (pindex + 1 < maxDefault) {
+        sarrary[pindex + 1] = 0;
+      }
       var mvalue = [];
       if (rsModel.hasOwnProperty(e.currentTarget.dataset.id)) {
         mvalue = rsModel[e.currentTarget.dataset.id].split(",");
         mvalue[pindex] = pvalue;
+        if (pindex + 1 < maxDefault) {
+          mvalue[pindex + 1] = 0;
+        }
         saveValue = mvalue.join(",");
       } else {
         saveValue = sarrary.join(",");
+      }
+      if (this.data.quecont == 0) {
+        var abcd = saveValue.split(',');
+        var nsaveValue = [];
+        for (var op = 0; op < abcd.length; op++) {
+          if (abcd[op] == "") {
+            nsaveValue.push(0);
+          } else {
+            nsaveValue.push(abcd[op]);
+          }
+        }
+        saveValue = nsaveValue.join(',');
       }
       rsModel[e.currentTarget.dataset.id] = saveValue;
       this.saveTogData();
@@ -243,12 +262,33 @@ Page(Object.assign({
         anserResult: rsModel
       });
 
-      if (maxDefault > (pindex + 1)) {
+      // if (maxDefault > (pindex + 1)) {
+      //   var nresult = "";
+      //   var noption = bindItem.option[0].option_name[pindex + 1].childList;
+      //   var sooption = noption.filter(a => a.label == result);
+      //   var pmodel = {};
+      //   pmodel.kindex = "kindex_" + (pvalue + 1);
+      //   if (sooption.length > 0) {
+      //     var narrary = sooption[0].value.split(',');
+      //     for (var m = 0; m < narrary.length; m++) {
+      //       m == 0 && (nresult = narrary[m])
+      //       picList.push(narrary[m]);
+      //     }
+      //   }
+      //   pmodel.pindex = 0;
+      //   pmodel.result = nresult;
+      //   pmodel.options = picList;
+      //   bindItem.pickerList[pindex + 1] = pmodel;
+      // }
+
+      var mpindex = pindex + 2;
+
+      while (maxDefault > (pindex + 1)) {
         var nresult = "";
         var noption = bindItem.option[0].option_name[pindex + 1].childList;
         var sooption = noption.filter(a => a.label == result);
         var pmodel = {};
-        pmodel.kindex = "kindex_" + (pvalue + 1);
+        pmodel.kindex = "kindex_" + (pindex + 2);
         if (sooption.length > 0) {
           var narrary = sooption[0].value.split(',');
           for (var m = 0; m < narrary.length; m++) {
@@ -257,9 +297,20 @@ Page(Object.assign({
           }
         }
         pmodel.pindex = 0;
-        pmodel.result = nresult;
+        pmodel.result = nresult; //"请选择";
         pmodel.options = picList;
         bindItem.pickerList[pindex + 1] = pmodel;
+        // bindItem.pickerList[pindex + 1].result
+        //开始循环 初始化
+        result = nresult;
+        picList = [];
+        pindex++;
+      }
+
+
+      while (mpindex < maxDefault) {
+        bindItem.pickerList[mpindex].result = "请选择";
+        mpindex++;
       }
       this.setData({
         qmlist: gData
@@ -304,7 +355,7 @@ Page(Object.assign({
             gData[lindex].item[oindex].imgListObj[imgindex].tagaction = true;
             rsModel[id] = gData[lindex].item[oindex].imgList;
           }
-  
+
           _this.setData({
             qmlist: gData,
             anserResult: rsModel
@@ -386,7 +437,7 @@ Page(Object.assign({
           'openid': wx.getStorageSync("userOpenid")
         },
         success(res) {
-         
+
           const data = JSON.parse(res.data);
           var gData = _this.data.qmlist;
           var rsModel = _this.data.anserResult;
@@ -606,8 +657,10 @@ Page(Object.assign({
         }
       });
       var uid = options.uid;
+
       this.setData({
-        uid: uid
+        uid: uid,
+        quecont: options.que || 0
       });
       this.getDataInitialization(this.data.uid);
     },
@@ -683,7 +736,7 @@ Page(Object.assign({
           var items = resultList[i];
           var item = [];
           for (var m = 0, n = items.item.length; m < n; m++) {
-        
+
             if (items.item[m].sub_cat == "single") {
               if (items.item[m].result != null && items.item[m].result != "" && items.item[m].result != "0") {
                 var options = items.item[m].option.filter(o => o.id == items.item[m].result)[0];
@@ -751,6 +804,9 @@ Page(Object.assign({
 
       for (var k = 0; k < modelItem.length; k++) {
         modelItem[k].serial_number = parseInt(modelItem[k].serial_number);
+        if (this.data.quecont == 1) {
+          modelItem[k].result = '';
+        }
         if (modelItem[k].sub_cat == "single") {
           for (var q = 0; q < modelItem[k].option.length; q++) {
             if (modelItem[k].option[q].related_sub != "0") {
@@ -780,11 +836,20 @@ Page(Object.assign({
           var count = parseInt(modelItem[k].option[0].default_choose);
           var resArrary = [];
           if (!!modelItem[k].result) {
-            resArrary = modelItem[k].result.split(",");
+            var nary = modelItem[k].result.split(",");
+            this.setData({
+              multistageAnser: nary
+            }); //  multistageAnser: "",
+            for (var kk = 0, mm = nary.length; kk < mm; kk++) {
+              resArrary.push(nary[kk] == "" ? 0 : nary[kk]);
+            }
           } else {
             for (var mm = 0; mm < count; mm++) {
               resArrary.push(0);
             }
+            this.setData({
+              multistageAnser: resArrary
+            }); //  multistageAnser: "",
           }
           var clist = modelItem[k].option[0].option_name;
           if (clist != null) {
@@ -794,13 +859,16 @@ Page(Object.assign({
               pmodel.options = [];
               pmodel.result = "";
               if (j > 0) {
-                if (this.data.multistageIni != "") {
+                if (this.data.multistageIni != "" && this.data.multistageIni != "请选择") {
+                  // debugger
                   var noption = clist[j].childList.filter(a => a.label == this.data.multistageIni);
-                  var narrary = noption[0].value.split(',');
-                  for (var m = 0; m < narrary.length; m++) {
-                    pmodel.options.push(narrary[m]);
-                    if (resArrary[j] == m) {
-                      pmodel.result = narrary[m];
+                  if (noption.length > 0) {
+                    var narrary = noption[0].value.split(',');
+                    for (var m = 0; m < narrary.length; m++) {
+                      pmodel.options.push(narrary[m]);
+                      if (resArrary[j] == m) {
+                        pmodel.result = narrary[m];
+                      }
                     }
                   }
                 } else {
@@ -821,11 +889,14 @@ Page(Object.assign({
               }
               pmodel.pindex = resArrary[j] == "" ? 0 : parseInt(resArrary[j]);
               if (resArrary[j] != "") {
+                // pmodel.result = pmodel.options[parseInt(resArrary[j])];
                 pmodel.result = pmodel.options[parseInt(resArrary[j])];
               }
+              // pmodel.result = !this.data.quecont ? pmodel.options[parseInt(resArrary[j])] : "请选择";
+              pmodel.result = !this.data.quecont ? this.data.multistageAnser[j] == "" ? "请选择" : pmodel.options[pmodel.pindex] : "请选择";
               this.setData({
                 multistageIni: pmodel.result
-              });
+              }); //  multistageAnser: "",
               picList.push(pmodel);
             }
           }
@@ -895,14 +966,35 @@ Page(Object.assign({
           return a.serial_number - b.serial_number;
         });
         // 结束
+
+        var rsModelanser = this.data.anserResult;
         if (modelItem[k].result) {
           AnserList.push({
             "id": modelItem[k].id,
             "result": modelItem[k].result
           })
+          rsModelanser[modelItem[k].id] = modelItem[k].result;
           this.setData({
-            answerList: AnserList
-          })
+            answerList: AnserList,
+            anserResult: rsModelanser
+          });
+
+        } else {
+          if (this.data.quecont == 1 && modelItem[k].sub_cat == "multistage") {
+            var mmresult = "";
+            for (var pm = 0; pm < count - 1; pm++) {
+              mmresult += ",";
+            }
+            AnserList.push({
+              "id": modelItem[k].id,
+              "result": mmresult
+            })
+            rsModelanser[modelItem[k].id] = mmresult;
+            this.setData({
+              answerList: AnserList,
+              anserResult: rsModelanser
+            })
+          }
         }
         if (modelItem[k].is_must == "1") {
           this.data.mustList.push({
@@ -959,9 +1051,11 @@ Page(Object.assign({
     onShareAppMessage: function() {
 
     },
-  exit:function(){
-    wx.navigateBack({ changed: false });
-  },
+    exit: function() {
+      wx.navigateBack({
+        changed: false
+      });
+    },
     savequestion: function(e) {
 
       var _this = this;
@@ -1031,13 +1125,16 @@ Page(Object.assign({
               }
             })
           }
-
+          _this.setData({
+            quecont: 0
+          });
           _this.getDataInitialization(this.data.uid);
 
 
 
         }
       });
+
     },
     submitquestion: function() {
 

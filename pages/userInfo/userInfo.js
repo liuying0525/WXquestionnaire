@@ -24,7 +24,7 @@ Page({
   onShow: function() {
     // if (!wx.getStorageSync("userInfo")) return;
     var ndata = this.data.uitem;
-    ndata[0].userLevel = wx.getStorageSync("userInfo").level;
+    ndata[0].level_desc = wx.getStorageSync("userInfo").level_desc;
     this.setData({
       uitem: ndata
     });
@@ -82,12 +82,12 @@ Page({
                 data: pdata,
                 success: function(data) {
                   var ndata = that.data.uitem;
-                  ndata[0].userLevel = wx.getStorageSync("userInfo").level;
                   app.globalData.userOpenid = data.data.data.openid;
                   wx.setStorageSync("userOpenid", data.data.data.openid);
                   app.globalData.userInfo.level = data.data.data.level;
-                  ndata[0].userLevel = data.data.data.level;
+                  ndata[0].level_desc = data.data.data.level_desc;
                   app.globalData.userInfo.addr = data.data.data.addr;
+                  app.globalData.userInfo.level_desc = data.data.data.level_desc;
                   ndata[0].addr = data.data.data.addr;
                   app.globalData.userInfo.mobile = data.data.data.mobile;
                   ndata[0].mobile = data.data.data.mobile;
