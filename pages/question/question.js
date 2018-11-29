@@ -1,7 +1,7 @@
 import api from '../../api/api.js';
 import util from '../../utils/util.js';
 var commonMixin = require('../../utils/commonMixin');
-
+var app = getApp();
 Page(Object.assign({
 
     /**
@@ -9,6 +9,7 @@ Page(Object.assign({
      */
     data: {
       uid: "",
+      answer_id:"",
       qlist: {},
       questiontitle: "",
       questioncontent: "",
@@ -30,6 +31,8 @@ Page(Object.assign({
       anserResult: {},
       multistageIni: "",
       multistageAnser: [],
+      status: "",
+      has_answer: "",
       Hosturl: "https://ffcmc.cn",
       options: [{
           name: 'USA',
@@ -646,6 +649,7 @@ Page(Object.assign({
      * 生命周期函数--监听页面加载
      */
     onLoad: function(options) {
+      console.log(app.globalData.userInfo);
       var that = this;
       //页面初始化options为页面跳转所带来的参数 res.windowHeight
       util.getSystemInfo({
@@ -658,15 +662,27 @@ Page(Object.assign({
       });
       var uid = options.uid;
 
+
+
+
       this.setData({
         uid: uid,
-        quecont: options.que || 0
-      });
-      this.getDataInitialization(this.data.uid);
-    },
-    getDataInitialization(uid) {
+        quecont: options.que || 0,
 
-      this.getData(uid).then(res => {
+      });
+      if (!options.que) {
+        var answer_id = options.answer_id;
+        this.setData({
+          answer_id: answer_id
+        });
+      }
+
+
+      this.getDataInitialization(this.data.uid, this.data.answer_id);
+    },
+  getDataInitialization(uid, answer_id) {
+
+      this.getData(uid,answer_id).then(res => {
 
         var sData = res;
         var dist = sData.mod;
@@ -676,7 +692,9 @@ Page(Object.assign({
         var AnserList = [];
         this.setData({
           questiontitle: res.sub_name || '',
-          questioncontent: res.description || ''
+          questioncontent: res.description || '',
+          status: res.status || "",
+          has_answer: res.has_answer || ""
         })
 
         for (var i = 0; i < dist.length; i++) {
@@ -784,12 +802,13 @@ Page(Object.assign({
 
       });
     },
-    getData: function(uid) {
+  getData: function (uid, answer_id) {
       var _this = this;
       return new Promise((resolve, reject) => {
         api.getAppSubInfo({
           data: {
-            id: uid
+            id: uid,
+            answer_id: answer_id || ""
           },
           success: (res) => {
             resolve(res.data.data);
@@ -974,6 +993,10 @@ Page(Object.assign({
             "result": modelItem[k].result
           })
           rsModelanser[modelItem[k].id] = modelItem[k].result;
+
+          if (this.data.quecont == 1) {
+            AnserList.length = 0;
+          }
           this.setData({
             answerList: AnserList,
             anserResult: rsModelanser
@@ -1078,6 +1101,8 @@ Page(Object.assign({
       console.log(_this.data.answerList)
       var saveModel = {};
       saveModel.id = this.data.uid;
+      saveModel.answer_id = this.data.id;
+
       saveModel.ans_status = e.target.dataset.save;
       for (var i = 0; i < this.data.answerList.length; i++) {
         if (typeof(this.data.answerList[i].result) == 'object') {
@@ -1085,23 +1110,52 @@ Page(Object.assign({
         }
       }
       saveModel.data = JSON.stringify(_this.data.answerList);
+      if (!this.data.quecont) {
+        saveModel.answer_id = this.data.answer_id;
+        if (wx.getStorageSync("userInfo").level == "3" && this.data.status == "2") {
+          return wx.showModal({
+            title: '提示',
+            content: "您不能再次提交该问卷",
+            success: function(res) {},
+            fail: function(res) {}
+          });
+        }
+      } else {
+        if (wx.getStorageSync("userInfo").level == "3" && this.data.has_answer == 1) {
+          return wx.showModal({
+            title: '提示',
+            content: "您不能再次提交该问卷，请到我的问卷中查看",
+            success: function(res) {
+              if (res.confirm) {
+                wx.switchTab({
+                  url: '/pages/myproject/myproject',
+                  fail: function() {}
+                });
+              } else if (res.cancel) {
+              }
+            },
+            fail: function(res) {}
+          });
+        }
+      }
       if (e.target.dataset.save == "2") {
-        for (var q = 0; q < _this.data.mustList.length; q++) {
-          for (var b = 0; b < _this.data.answerList.length; b++) {
 
-            // if (!_this.data.answerList[b][_this.data.mustList[q].id]) {
-            var ansMolde = _this.data.answerList.filter(o => o.id == _this.data.mustList[q].id);
-            if (ansMolde.length == 0 || ansMolde[0].result == "") {
-              // debugger
-              wx.showModal({
-                title: '提示',
-                content: "题目:" + _this.data.mustList[q].questionname + "为必答题，请作答后再提交",
-                success: function(res) {
-                  // _this.getDataInitialization(_this.data.uid);
-                }
-              })
-              return
-            }
+        for (var q = 0; q < _this.data.mustList.length; q++) {
+          // for (var b = 0; b < _this.data.answerList.length; b++) {
+
+          // if (!_this.data.answerList[b][_this.data.mustList[q].id]) {
+          var ansMolde = _this.data.answerList.filter(o => o.id == _this.data.mustList[q].id);
+          if (ansMolde.length == 0 || ansMolde[0].result == "") {
+            // debugger
+           return wx.showModal({
+              title: '提示',
+              content: "题目:" + _this.data.mustList[q].questionname + "为必答题，请作答后再提交",
+              success: function(res) {
+                // _this.getDataInitialization(_this.data.uid);
+              }
+            })
+            return
+            // }
           }
         }
       }
@@ -1128,7 +1182,7 @@ Page(Object.assign({
           _this.setData({
             quecont: 0
           });
-          _this.getDataInitialization(this.data.uid);
+          _this.getDataInitialization(this.data.uid, this.data.id);
 
 
 
@@ -1160,6 +1214,7 @@ Page(Object.assign({
       console.log(_this.data.answerList)
       var saveModel = {};
       saveModel.id = this.data.uid;
+
       saveModel.ans_status = "1";
       for (var i = 0; i < this.data.answerList.length; i++) {
         if (typeof(this.data.answerList[i].result) == 'object') {

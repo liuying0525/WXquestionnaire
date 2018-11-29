@@ -1,13 +1,14 @@
 {
   "pages": [
+    
     "pages/projectList/projectList",
     "pages/question/question",
     "pages/loCation/Location",
     "pages/myproject/myproject",
     "pages/userInfo/userInfo",
     "pages/logs/logs",
-    "pages/coropper/index"
-    
+    "pages/coropper/index",
+    "pages/demo/inputdemo"
   ],
   "window": {
     "backgroundTextStyle": "light",

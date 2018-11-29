@@ -155,8 +155,9 @@ Page({
   },
   tapName: function (e) {
     var uid = e.currentTarget.dataset.uid;
+    var id = e.currentTarget.dataset.id;
     wx.navigateTo({
-      url: '../question/question?uid=' + uid
+      url: '../question/question?uid=' + uid +'&answer_id='+id
     })
   },
 })

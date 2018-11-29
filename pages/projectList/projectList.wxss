@@ -14,7 +14,8 @@ padding-top:6rpx;
 }
 
 .classify_page_left {
-  width: 150rpx;
+ width:18%;
+
   /* height: 100%; */
   position: fixed;
   overflow-y: auto;
@@ -27,8 +28,7 @@ padding-top:6rpx;
   width: 82%;
   height: 100%;
   background-color: white;
-  margin-left: 63px;
-  padding-left:40rpx;
+margin-left:18%;
 
 }
 
@@ -46,8 +46,7 @@ padding-top:6rpx;
  font-size:32rpx;
  align-items:flex-end;
  border-bottom:2rpx solid #f4f5f7;
-
-  
+padding-left:40rpx;
 }
 .classify_recommendeds_right text{
   margin:8rpx 0;
