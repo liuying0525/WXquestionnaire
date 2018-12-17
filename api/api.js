@@ -54,6 +54,7 @@ const getAppAreaInfo = (params) => wxRequest(params, host + "Api/Subject/getArea
 const getAppAnswerSave = (params) => wxRequest(params, host + "Api/Answer/save")
 const uploadImage = (params) => wxRequest(params, host + "Api/Answer/upload")
 const getAppEditInfo = (params) => wxRequest(params, host + "Api/User/editInfo")
+const getAppIndex = (params) => wxRequest(params, host + "/Api/Company/index")
 
 module.exports = {
 	getAppRegister,

@@ -1,5 +1,27 @@
 App({
   onLaunch: function() {
+    var _this = this;
+    if (wx.getStorageSync("userOpenid")) {
+      wx.login({
+        success: (tdata) => {
+          if (tdata.code) {
+            wx.request({
+              url: 'https://ffcmc.cn/index.php/Api/User/register',
+              method: 'POST',
+              header: {
+                'content-type': 'application/x-www-form-urlencoded'
+              },
+              data: {
+                code: tdata.code
+              },
+              success: function(data) {
+                _this.globalData.userInfo = data.data.data || {};
+              }
+            })
+          }
+        }
+      });
+    }
     wx.checkSession({　　　　
       success: function(chres) {},
       fail: function(chres) {

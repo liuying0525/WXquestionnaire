@@ -1,6 +1,5 @@
 {
   "pages": [
-    
     "pages/projectList/projectList",
     "pages/question/question",
     "pages/loCation/Location",
@@ -8,7 +7,7 @@
     "pages/userInfo/userInfo",
     "pages/logs/logs",
     "pages/coropper/index",
-    "pages/demo/inputdemo"
+    "pages/handwriting/handwriting"
   ],
   "window": {
     "backgroundTextStyle": "light",

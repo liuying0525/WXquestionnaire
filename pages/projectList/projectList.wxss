@@ -10,6 +10,7 @@ padding-top:6rpx;
   justify-content: space-between;
   /*position: relative;*/
   background-color: #f4f5f7;
+  margin-top:72rpx;
  
 }
 
@@ -162,3 +163,38 @@ height:35rpx;
 padding-bottom:15rpx;
 }
 
+.searchlist{
+  position:fixed;
+  top:0;
+ width:100%;
+padding:10rpx;
+left: 0;
+z-index: 20;
+height:80rpx;
+line-height:60rpx;
+background:rgb(240,244,246);
+box-sizing:border-box;
+text-align:center;
+
+}
+.searchlist input{
+width:94%;
+height:100%;
+background:#fff;
+border-radius:30rpx;
+font-size:32rpx;
+padding-left:10rpx;
+margin:0 auto;
+
+
+}
+.searchlist icon{
+  position:absolute;
+right:80rpx;
+top:10rpx;
+z-index:20;
+line-height:100rpx;
+height:60rpx;
+padding:0 20rpx;
+
+}

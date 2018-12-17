@@ -26,8 +26,8 @@
 
         <view class='bigitem_content {{item.isShow==true?"":"itemhidden"}}' wx:for="{{item.item}}" wx:for-item="oitem" wx:for-index="oindex" wx:key="{{oitem}}" id="list{{oitem.id}}">
           <view class='smallitem'>
-            <i wx:if="{{!!oitem.is_must&&oitem.is_must!='0'}}">*</i>
-            <text>{{oindex+1}}.{{oitem.title}}</text>
+            <!-- <i wx:if="{{!!oitem.is_must&&oitem.is_must!='0'}}">*</i> -->
+            <text class="{{!!oitem.is_must&&oitem.is_must!='0'?'itemmust':''}}">{{oindex+1}}.{{oitem.title}}</text>
             <block wx:if="{{oitem.sub_cat=='single'}}">
               <radio-group class="radio-group" bindchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">
                 <label class="radio" wx:for="{{oitem.option}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
@@ -44,7 +44,7 @@
             </block>
             <block wx:if="{{oitem.sub_cat=='fill'}}">
               <!-- <input placeholder="{{oitem.title}}"  value="{{oitem.result}}"  data-id="{{oitem.option[0].id}}" bindinput="inputgetName" data-name='oitem.result'/> -->
-              <input placeholder="{{oitem.title}}" value="{{oitem.result}}" data-id="{{oitem.id}}" bindinput="inputgetValue" />
+              <input placeholder="" value="{{oitem.result}}" data-id="{{oitem.id}}" bindinput="inputgetValue" />
             </block>
             <block wx:if="{{oitem.sub_cat=='fractions'}}">
               <slider bindchange="slider4change" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}" min="0" max="{{oitem.option[0].option_name}}" show-value value="{{oitem.result||oitem.option[0].option_name}}" block-size="18" activeColor="rgb(69,152,252)"
@@ -57,6 +57,24 @@
               </input>
               <button bindtap='btnchoose' type='primary' data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">获取当前位置</button>
             </block>
+            <block wx:if="{{oitem.sub_cat=='signature'}}">
+              <view class='signature'>
+                <!-- <block wx:if="{{!urlsrc}}">
+                  <button bindtap="signshow" class='uploadsignbtn' data-id="{{oitem.id}}" data-icon="{{oitem.signatureicon}}">点击我签名</button>
+                </block>
+                <block wx:else>
+                  <image src="{{urlsrc}}" bindtap="chooseImage" bindlongpress="deleteImage"></image>
+                </block> -->
+                <block wx:if="{{oitem.result==''}}">
+                  <button bindtap="signshow" class='uploadsignbtn' data-id="{{oitem.id}}">点击我签名</button>
+                </block>
+                <block wx:else>
+                <view class='routateimg'>
+                  <image wx:if="{{oitem.result}}" src="{{oitem.result||''}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}" data-src="{{oitem.result}}" bindtap="chooseSignImage" bindlongpress="deleteSignImage"></image> </view>
+                </block>
+              </view>
+            </block>
+
             <block wx:if="{{oitem.sub_cat=='uploadimg'}}">
               <view>
                 <block wx:for="{{oitem.imgListObj}}" wx:for-index="imgindex" wx:for-item="imgitem" wx:key="{{imgitem}}">
@@ -91,11 +109,14 @@
               </view>
             </block>
             <block wx:if="{{oitem.sub_cat=='multistage'}}">
-              <block wx:for="{{oitem.pickerList}}" wx:for-item="pickoption" wx:for-index="pindex" wx:key="pickoption">
-                <picker bindchange="bindPickerChange" value="{{pickoption.pindex}}" range="{{pickoption.options}}" data-lindex="{{lindex}}" data-id="{{oitem.id}}" data-oindex="{{oindex}}" data-pindex="{{pindex}}" data-options="{{pickoption.options}}">
-                  <view class="picker">{{pickoption.result}}</view>
-                </picker>
-              </block>
+              <view class='multistage'>
+                <block wx:for="{{oitem.pickerList}}" wx:for-item="pickoption" wx:for-index="pindex" wx:key="pickoption">
+                  <picker bindchange="bindPickerChange" value="{{pickoption.pindex}}" range="{{pickoption.options}}" data-lindex="{{lindex}}" data-id="{{oitem.id}}" data-oindex="{{oindex}}" data-pindex="{{pindex}}" data-options="{{pickoption.options}}">
+                    <view class="picker">{{pickoption.result}}</view>
+                    <view class='pickericon'></view>
+                  </picker>
+                </block>
+              </view>
             </block>
             <block wx:if="{{oitem.sub_cat=='comprehensive'}}">
               <view class='bigitem_content' wx:if="{{oitem.item.length!=0}}" wx:for="{{oitem.item}}" wx:for-item="mitem" wx:for-index="mindex" wx:key="{{mitem}}" id="list{{mitem.id}}">
@@ -139,10 +160,10 @@
                             </view>
                           </block>
                           <block wx:else>
-                           <view class='cropper' wx:if="{{imgitem.upsrc.length>0 && imgitem.src.length==0 }}">
-                        <cropper  data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bind:getCropperImg="getCropperImg" url="{{imgitem.upsrc}}" ratio="{{ ratio }}"></cropper>
-                      </view>
-                            <view class='show-image-view' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bindtap="chooseImage" >
+                            <view class='cropper' wx:if="{{imgitem.upsrc.length>0 && imgitem.src.length==0 }}">
+                              <cropper data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bind:getCropperImg="getCropperImg" url="{{imgitem.upsrc}}" ratio="{{ ratio }}"></cropper>
+                            </view>
+                            <view class='show-image-view' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bindtap="chooseImage">
                               <image class="show-image" mode="aspectFitf" src="{{imgitem.upsrc||imgitem.src}}">
                               </image>
                             </view>
@@ -153,11 +174,17 @@
 
                   </block>
                   <block wx:if="{{mitem.sub_cat=='multistage'}}">
-                    <block wx:for="{{mitem.pickerList}}" wx:for-item="pickoption" wx:for-index="pindex" wx:key="pickoption">
-                      <picker bindchange="bindPickerChange" value="{{pickoption.pindex}}" range="{{pickoption.options}}" data-lindex="{{lindex}}" data-id="{{mitem.id}}" data-oindex="{{oindex}}" data-pindex="{{pindex}}" data-mindex="{{mindex}}" data-options="{{pickoption.options}}">
-                        <view class="picker">{{pickoption.result}}</view>
-                      </picker>
-                    </block>
+                    <view class='multistage'>
+                      <block wx:for="{{mitem.pickerList}}" wx:for-item="pickoption" wx:for-index="pindex" wx:key="pickoption">
+
+
+                        <picker bindchange="bindPickerChange" value="{{pickoption.pindex}}" range="{{pickoption.options}}" data-lindex="{{lindex}}" data-id="{{mitem.id}}" data-oindex="{{oindex}}" data-pindex="{{pindex}}" data-mindex="{{mindex}}" data-options="{{pickoption.options}}">
+                          <view class="picker">{{pickoption.result}}</view>
+                          <view class='pickericon'></view>
+                        </picker>
+
+                      </block>
+                    </view>
                   </block>
                 </view>
 

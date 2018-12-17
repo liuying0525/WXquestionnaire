@@ -1,4 +1,8 @@
 <!--pages/projectList/projectList.wxml-->
+<view class='searchlist'>
+<input bindinput="bindKeyInput" confirm-type="search" placeholder='搜索' bindconfirm="confirm" data-type="input">{{inputValue}}</input>
+<!-- <icon type="search" size="20" bindtouchstart='confirm' data-type="icon"/> -->
+</view>
 <view class='classify_page'>
   <view class='classify_page_left' style="height:{{deviceHeight}}px">
     <import src="templates/recommendeds.wxml" />

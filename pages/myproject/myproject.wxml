@@ -1,4 +1,8 @@
 <!--pages/myproject/myproject.wxml-->
+<view class='searchlist'>
+<input bindinput="bindKeyInput" confirm-type="search" placeholder='搜索' bindconfirm="confirm" data-type="input">{{inputValue}}</input>
+<!-- <icon type="search" size="20" catchtap='confirm' data-type="icon"/> -->
+</view>
 <view class="tabNav">
   <view wx:for="{{navTab}}" wx:key="index" data-idx="{{index}}" bindtap="currentTab" class="{{currentTab==index?'cur':''}}">
     <text>{{item}}</text>
@@ -19,7 +23,7 @@
           <view class='recommendeds_right_left'>
             <text>{{item.sub_name}}</text>
             <text>所属区域:{{item.area_belong}}</text>
-            <text>状态：{{item.status==2?"可编辑":"已关闭"}}</text>
+            <text>状态：{{item.status==2?"已完成":"待提交"}}</text>
           </view>
           <image class='recommendeds_right_right' wx:if="{{item.status==2}}" src="../../../images/edit.png" class="editicon"></image>
         </view>

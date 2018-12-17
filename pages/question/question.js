@@ -9,7 +9,7 @@ Page(Object.assign({
      */
     data: {
       uid: "",
-      answer_id:"",
+      answer_id: "",
       qlist: {},
       questiontitle: "",
       questioncontent: "",
@@ -45,7 +45,8 @@ Page(Object.assign({
         }
       ],
       relateSub: [],
-      changeItemModel: {}
+      changeItemModel: {},
+      urlsrc: ''
     },
     radioChange: function(e) {
       var _this = this;
@@ -469,6 +470,19 @@ Page(Object.assign({
       });
 
     },
+    chooseSignImage: function(e) {
+      var _this = this;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var mindex = e.currentTarget.dataset.mindex || "";
+      var current = e.currentTarget.dataset.src;
+      var previewList = [];
+      previewList.push(current);
+      wx.previewImage({
+        current: current,
+        urls: previewList
+      });
+    },
     chooseImage: function(e) {
 
       var _this = this;
@@ -489,6 +503,40 @@ Page(Object.assign({
         current: current,
         urls: previewList
       });
+    },
+    deleteSignImage: function(e) {
+      var _this = this;
+      var lindex = e.currentTarget.dataset.lindex;
+      var oindex = e.currentTarget.dataset.oindex;
+      var mindex = e.currentTarget.dataset.mindex || "";
+      var id = e.currentTarget.dataset.id;
+
+      var rsModel = _this.data.anserResult;
+      wx.showModal({
+        title: '提示',
+        content: '确定要删除签名吗？',
+        success: function(res) {
+          if (res.confirm) {
+            _this.savequestion(e);
+            setTimeout(() => {
+              var gData = _this.data.qmlist;
+              if (mindex != "") {
+                gData[lindex].item[oindex].item[mindex].result = "";
+              } else {
+                gData[lindex].item[oindex].result = "";
+              }
+              rsModel[id] = "";
+              _this.setData({
+                qmlist: gData,
+                anserResult: rsModel,
+              });
+            }, 500);
+
+          } else if (res.cancel) {
+            return false;
+          }
+        }
+      })
     },
     deleteImage: function(e) {
       var _this = this;
@@ -649,7 +697,7 @@ Page(Object.assign({
      * 生命周期函数--监听页面加载
      */
     onLoad: function(options) {
-      console.log(app.globalData.userInfo);
+      wx.removeStorageSync("upLoadUrlInfo");
       var that = this;
       //页面初始化options为页面跳转所带来的参数 res.windowHeight
       util.getSystemInfo({
@@ -661,14 +709,9 @@ Page(Object.assign({
         }
       });
       var uid = options.uid;
-
-
-
-
       this.setData({
         uid: uid,
-        quecont: options.que || 0,
-
+        quecont: options.que || 0
       });
       if (!options.que) {
         var answer_id = options.answer_id;
@@ -676,14 +719,10 @@ Page(Object.assign({
           answer_id: answer_id
         });
       }
-
-
       this.getDataInitialization(this.data.uid, this.data.answer_id);
     },
-  getDataInitialization(uid, answer_id) {
-
-      this.getData(uid,answer_id).then(res => {
-
+    getDataInitialization(uid, answer_id) {
+      this.getData(uid, answer_id).then(res => {
         var sData = res;
         var dist = sData.mod;
         var itemDist = JSON.parse(JSON.stringify(dist));
@@ -802,7 +841,7 @@ Page(Object.assign({
 
       });
     },
-  getData: function (uid, answer_id) {
+    getData: function(uid, answer_id) {
       var _this = this;
       return new Promise((resolve, reject) => {
         api.getAppSubInfo({
@@ -942,10 +981,11 @@ Page(Object.assign({
             // JSON.parse(modelItem[k].result).addresname = nameAll.addresname;
             // JSON.parse(modelItem[k].result).locationName = nameAll.locationName;
           }
-
+        }
+        if (modelItem[k].sub_cat == "signature") {
+          modelItem[k].result = modelItem[k].hasOwnProperty("result") ? modelItem[k].result : "";
         }
         if (modelItem[k].sub_cat == "uploadimg") {
-
           //2018.10.31 图片上传 需要分开数组
           var imgList = [];
           var imgListObj = [];
@@ -1027,32 +1067,49 @@ Page(Object.assign({
         }
       }
     },
+    signshow: function(event) {
+      //var mindex = event.currentTarget.dataset.mindex || "";
+      var id = event.currentTarget.dataset.id;
+      wx.navigateTo({
+        url: '../handwriting/handwriting?itemId=' + id,
+      });
+    },
     /**
      * 生命周期函数--监听页面初次渲染完成
      */
     onReady: function() {
 
     },
-
     /**
      * 生命周期函数--监听页面显示
      */
     onShow: function() {
-      //this.getDataInitialization(this.data.uid);
+      var upLoadUrlInfo = wx.getStorageSync("upLoadUrlInfo") || {};
+      if (JSON.stringify(upLoadUrlInfo) != "{}") {
+        var gData = this.data.qmlist;
+        var rsModel = this.data.anserResult;
+        for (var key in upLoadUrlInfo) {
+          rsModel[key] = upLoadUrlInfo[key];
+        }
+        this.saveTogData();
+        this.setData({
+          anserResult: rsModel
+        })
+        this.setData({
+          qmlist: gData
+        });
+      }
     },
-
     /**
      * 生命周期函数--监听页面隐藏
      */
-    onHide: function() {
-
-    },
-
+    onHide: function() {},
     /**
      * 生命周期函数--监听页面卸载
      */
     onUnload: function() {
-
+      // debugger
+      wx.removeStorageSync("upLoadUrlInfo");
     },
     /**
      * 页面相关事件处理函数--监听用户下拉动作
@@ -1131,8 +1188,7 @@ Page(Object.assign({
                   url: '/pages/myproject/myproject',
                   fail: function() {}
                 });
-              } else if (res.cancel) {
-              }
+              } else if (res.cancel) {}
             },
             fail: function(res) {}
           });
@@ -1147,7 +1203,7 @@ Page(Object.assign({
           var ansMolde = _this.data.answerList.filter(o => o.id == _this.data.mustList[q].id);
           if (ansMolde.length == 0 || ansMolde[0].result == "") {
             // debugger
-           return wx.showModal({
+            return wx.showModal({
               title: '提示',
               content: "题目:" + _this.data.mustList[q].questionname + "为必答题，请作答后再提交",
               success: function(res) {
@@ -1159,33 +1215,36 @@ Page(Object.assign({
           }
         }
       }
-
       api.getAppAnswerSave({
         data: saveModel,
         success: (res) => {
           console.log(res);
           if (e.type != "longpress") {
-            wx.showModal({
-              title: '提示',
-              content: "保存成功！",
-              success: function(res) {
-                if (e.target.dataset.save == "2") {
-                  wx.switchTab({
-                    url: '/pages/myproject/myproject',
-                    fail: function() {}
-                  });
+            if (res.data.code == "200") {
+              wx.showModal({
+                title: '提示',
+                content: "保存成功！",
+                success: function(res) {
+                  if (e.target.dataset.save == "2") {
+                    wx.switchTab({
+                      url: '/pages/myproject/myproject',
+                      fail: function() {}
+                    });
+                  } else {
+                    // wx.showModal({
+                    //   title: '提示',
+                    //   content: "保存失败！"
+                    // })
+                    // return
+                  }
                 }
-
-              }
-            })
+              })
+            }
           }
           _this.setData({
             quecont: 0
           });
           _this.getDataInitialization(this.data.uid, this.data.id);
-
-
-
         }
       });
 
