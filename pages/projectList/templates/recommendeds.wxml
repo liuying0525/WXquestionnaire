@@ -1,7 +1,7 @@
 <template name="classify_recommendeds_right">
 <scroll-view scroll-y >
     <block wx:for="{{rightArray}}" wx:key="{{index}}">  
-       <view class="classify_recommendeds_right" bindtap="tapName" data-uid="{{item.id}}">
+       <view  class="classify_recommendeds_right" bindtap="tapName" data-uid="{{item.id}}">
         <view class='recommendeds_right_left'>
         <text>{{item.sub_name}}</text>
         <text>进度:{{item.answer}}</text>
