@@ -15,7 +15,8 @@ Page(Object.assign({
       questioncontent: "",
       qmlist: [],
       quecont: 0,
-      mustList: [],
+      mustList: [], //操作之后验证必答题
+      inimustList: [], //初始化保存必答题
       itemModList: [],
       ratio: 102 / 152,
       tagaction: false,
@@ -57,6 +58,9 @@ Page(Object.assign({
       var oindex = e.currentTarget.dataset.oindex;
       var mindex = e.currentTarget.dataset.hasOwnProperty("mindex") ? e.currentTarget.dataset.mindex : "";
       var gData = this.data.qmlist;
+      var mustList = this.data.mustList;
+      var inimustList = this.data.inimustList;
+
       if (rsModel[id] != undefined) {
         _this.setData({
           changeItemModel: gData[lindex].item[oindex]
@@ -67,6 +71,11 @@ Page(Object.assign({
       rsModel[e.currentTarget.dataset.id] = txtValue;
       if (e.currentTarget.dataset.hasOwnProperty("mindex")) {
         gData[lindex].item[oindex].item[mindex].result = txtValue; // 保存选择过的内容;
+
+        var optionMax = Math.max.apply(Math, gData[lindex].item[oindex].item[mindex].option.map(function(o) {
+          return o.skip_sub
+        }));
+
         if (rsModel[id] != undefined) {
           _this.setData({
             changeItemModel: gData[lindex].item[oindex].item[mindex]
@@ -75,16 +84,51 @@ Page(Object.assign({
         for (var v = 0; v < gData[lindex].item[oindex].item[mindex].option.length; v++) {
           gData[lindex].item[oindex].item[mindex].option[v].default_choose = "0";
           if (txtValue == gData[lindex].item[oindex].item[mindex].option[v].id) {
-            if (gData[lindex].item[oindex].item[mindex].option[v].skip_sub != "0") {
-              toViewid = 'list' + gData[lindex].item[oindex].item[mindex].option[v].skip_sub;
+            var skip_sub = gData[lindex].item[oindex].item[mindex].option[v].skip_sub;
+            //gData[lindex].item[oindex].item[mindex].option[v].skip_sub'
+            //跳转逻辑
+            if (skip_sub != "0") {
+              toViewid = 'list' + skip_sub;
+              var inifilterList = gData[lindex].item[oindex].item.filter(o => o.id > id && o.id < optionMax);
+              for (var om = 0; om < inifilterList.length; om++) {
+                if (inimustList.filter(o => o.id == inifilterList[om].id)) {
+                  inifilterList[om].is_must = "1";
+                  if (mustList.filter(o => o.id == inifilterList[om].id).length == 0) {
+                    mustList.push({
+                      "id": inifilterList[om].id,
+                      "questionname": inifilterList[om].title
+                    });
+                  }
+                }
+              }
+              //处理必答题选项必答
+              var filterList = gData[lindex].item[oindex].item.filter(o => o.id > id && o.id < skip_sub);
+              for (var om = 0; om < filterList.length; om++) {
+                filterList[om].is_must = "0";
+                var skip_subIndex = mustList.indexOf(mustList.filter(o => o.id == filterList[om].id)[0]);
+                mustList.splice(skip_subIndex, 1);
+              }
             }
             if (this.data.changeItemModel.option.filter(o => o.id == txtValue).length > 0) {
               var osubidList = gData[lindex].item[oindex].item[mindex].option.filter(b => b.related_sub != "0");
               //移除当选提有关联选项
               for (var jj = 0; jj < osubidList.length; jj++) {
                 var iindex = gData[lindex].item[oindex].item.indexOf(gData[lindex].item[oindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
+
+                // var iindex = gData[lindex].item.indexOf(gData[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                if (this.data.qlist[lindex].item[oindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].is_must == "1") {
+                  if (mustList.filter(o => o.id == osubidList[jj].related_sub).length == 0) {
+                    mustList.push({
+                      "id": osubidList[jj].related_sub,
+                      "questionname": this.data.qlist[lindex].item[oindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].title
+                    });
+                  }
+                }
+
                 if (iindex != -1) {
                   gData[lindex].item[oindex].item.splice(iindex, 1);
+                  var ssindex = mustList.indexOf(mustList.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                  ssindex != -1 && mustList.splice(ssindex, 1);
                 }
               }
             }
@@ -98,14 +142,37 @@ Page(Object.assign({
       } else {
 
         gData[lindex].item[oindex].result = txtValue; // 保存选择过的内容;
-        //debugger
+        var optionMax = Math.max.apply(Math, gData[lindex].item[oindex].option.map(function(o) {
+          return o.skip_sub
+        }));
         for (var v = 0; v < gData[lindex].item[oindex].option.length; v++) {
           gData[lindex].item[oindex].option[v].default_choose = "0";
           if (txtValue == gData[lindex].item[oindex].option[v].id) {
             gData[lindex].item[oindex].option[v].default_choose = "1";
+
+            var skip_sub = gData[lindex].item[oindex].option[v].skip_sub;
             //跳转逻辑
-            if (gData[lindex].item[oindex].option[v].skip_sub) {
+            if (skip_sub) {
               toViewid = 'list' + gData[lindex].item[oindex].option[v].skip_sub;
+              var inifilterList = gData[lindex].item.filter(o => o.id > id && o.id < optionMax);
+              for (var om = 0; om < inifilterList.length; om++) {
+                if (inimustList.filter(o => o.id == inifilterList[om].id)) {
+                  inifilterList[om].is_must = "1";
+                  if (mustList.filter(o => o.id == inifilterList[om].id).length == 0) {
+                    mustList.push({
+                      "id": inifilterList[om].id,
+                      "questionname": inifilterList[om].title
+                    });
+                  }
+                }
+              }
+              //处理必答题选项必答
+              var filterList = gData[lindex].item.filter(o => o.id > id && o.id < skip_sub);
+              for (var om = 0; om < filterList.length; om++) {
+                filterList[om].is_must = "0";
+                var skip_subIndex = mustList.indexOf(mustList.filter(o => o.id == filterList[om].id)[0]);
+                mustList.splice(skip_subIndex, 1);
+              }
             }
             // 关联逻辑
             if (this.data.changeItemModel.hasOwnProperty("id")) {
@@ -113,7 +180,17 @@ Page(Object.assign({
               //移除当选提有关联选项
               for (var jj = 0; jj < osubidList.length; jj++) {
                 var iindex = gData[lindex].item.indexOf(gData[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                if (this.data.qlist[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].is_must == "1") {
+                  if (mustList.filter(o => o.id == osubidList[jj].related_sub).length == 0) {
+                    mustList.push({
+                      "id": osubidList[jj].related_sub,
+                      "questionname": this.data.qlist[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].title
+                    });
+                  }
+                }
                 if (iindex != -1) {
+                  var ssindex = mustList.indexOf(mustList.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                  ssindex != -1 && mustList.splice(ssindex, 1);
                   gData[lindex].item.splice(iindex, 1);
                 }
               }
@@ -129,7 +206,8 @@ Page(Object.assign({
       _this.setData({
         anserResult: rsModel,
         toView: toViewid,
-        qmlist: gData
+        qmlist: gData,
+        mustList: mustList
       });
 
     },
@@ -344,12 +422,12 @@ Page(Object.assign({
         sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
         success(res) {
           //console.log("1");
-          console.log("res=" + JSON.stringify(res));
+          // console.log("res=" + JSON.stringify(res));
 
           var gData = _this.data.qmlist;
           var rsModel = _this.data.anserResult;
           var hosturl = res.tempFilePaths[0];
-          console.log("hosturl=" + hosturl);
+          // console.log("hosturl=" + hosturl);
           if (mindex != "") {
             gData[lindex].item[oindex].item[mindex].imgListObj[imgindex].upsrc = hosturl;
             gData[lindex].item[oindex].item[mindex].imgListObj[imgindex].tagaction = true;
@@ -428,7 +506,7 @@ Page(Object.assign({
       var imgindex = e.currentTarget.dataset.imgindex;
       var mindex = e.currentTarget.dataset.mindex || "";
       var id = e.currentTarget.dataset.id;
-      console.log(e.detail.url)
+      // console.log(e.detail.url)
       wx.uploadFile({
         url: _this.data.Hosturl + '/index.php/Api/Answer/upload', //仅为示例，非真实的接口地址
         filePath: e.detail.url,
@@ -792,21 +870,46 @@ Page(Object.assign({
         for (var i = 0, qq = resultList.length; i < qq; i++) {
           var items = resultList[i];
           var item = [];
+          var relpaceModel = {};
           for (var m = 0, n = items.item.length; m < n; m++) {
-
             if (items.item[m].sub_cat == "single") {
               if (items.item[m].result != null && items.item[m].result != "" && items.item[m].result != "0") {
                 var options = items.item[m].option.filter(o => o.id == items.item[m].result)[0];
                 if (options.default_choose == "1") {
                   this.data.changeItemModel = items.item[m];
                   var objItem = itemDist[i].item.filter(b => b.id == options.related_sub);
+                  var skip_objItem = itemDist[i].item.filter(b => b.id == options.skip_sub);
+                  if (skip_objItem.length > 0) {
+                    //处理必答题选项必答
+                    relpaceModel = itemDist[i].item;
+                    var filterList = relpaceModel.filter(o => o.id > items.item[m].id && o.id < skip_objItem[0].id);
+                    for (var om = 0; om < filterList.length; om++) {
+                      filterList[om].is_must = "0";
+                    }
+                    skip_objItem && (resultList[i].item = relpaceModel);
+                  }
                   if (objItem.length > 0) {
                     objItem = objItem[0];
-                    if (objItem.result && typeof(JSON.parse(objItem.result)) == "object") {
-                      var nameAll = JSON.parse(objItem.result);
-                      objItem.result = nameAll;
+                    if (objItem.sub_cat == "loCation") {
+                      if (!!objItem.result && typeof(JSON.parse(objItem.result)) == "object") {
+                        var nameAll = JSON.parse(objItem.result);
+                        objItem.result = nameAll;
+                      }
                     }
-                    objItem && (resultList[i].item.splice(m + 1, 0, objItem))
+                    if (objItem.sub_cat == "multiple") {
+                      for (var q = 0; q < objItem.option.length; q++) {
+                        if (objItem.result) {
+                          var df = "0";
+                          var res = "," + objItem.result + ",";
+                          var rid = "," + objItem.option[q].id + ",";
+                          if (res.indexOf(rid) != -1) {
+                            df = "1";
+                          }
+                          objItem.option[q].default_choose = df;
+                        }
+                      }
+                    }
+                    objItem && (resultList[i].item.splice(m + 1, 0, objItem));
                   }
                 }
               }
@@ -834,9 +937,39 @@ Page(Object.assign({
             }
           }
         }
+
+        //初始化 显示的必填提
+        for (var k = 0; k < resultList.length; k++) {
+          var msmodel = resultList[k];
+          for (var m = 0; m < msmodel.item.length; m++) {
+            if (msmodel.item[m].is_must == "1") {
+              this.data.mustList.push({
+                "id": msmodel.item[m].id,
+                "questionname": msmodel.item[m].title
+              });
+            }
+          }
+          if (!!msmodel.mod) {
+            for (var q = 0; q < msmodel.mod.length; q++) {
+              var qmodel = msmodel.mod[q];
+              for (var qm = 0; qm < qmodel.item.length; qm++) {
+                if (qmodel.item[qm].is_must == "1") {
+                  this.data.mustList.push({
+                    "id": qmodel.item[qm].id,
+                    "questionname": qmodel.item[qm].title
+                  });
+                }
+              }
+            }
+          }
+
+        }
+
+        var inimustList = JSON.parse(JSON.stringify(this.data.mustList)); //初始化保存
         this.setData({
           qlist: itemDist,
-          qmlist: resultList
+          qmlist: resultList,
+          inimustList: inimustList
         });
 
       });
@@ -1059,12 +1192,6 @@ Page(Object.assign({
             })
           }
         }
-        if (modelItem[k].is_must == "1") {
-          this.data.mustList.push({
-            "id": modelItem[k].id,
-            "questionname": modelItem[k].title
-          });
-        }
       }
     },
     signshow: function(event) {
@@ -1140,8 +1267,7 @@ Page(Object.assign({
 
       var _this = this;
       // var anserList = this.data.answerList.push;
-      console.log(JSON.stringify(this.data.anserResult));
-
+      // console.log(JSON.stringify(this.data.anserResult));
       var forinModel = this.data.anserResult;
       for (var mkey in forinModel) {
         for (var i = 0; i < _this.data.answerList.length; i++) {
@@ -1155,7 +1281,7 @@ Page(Object.assign({
           "result": forinModel[mkey]
         });
       }
-      console.log(_this.data.answerList)
+      // console.log(_this.data.answerList)
       var saveModel = {};
       saveModel.id = this.data.uid;
       saveModel.answer_id = this.data.id;
@@ -1196,6 +1322,11 @@ Page(Object.assign({
       }
       if (e.target.dataset.save == "2") {
 
+        //验证顺序
+        _this.data.mustList.sort(function(a, b) {
+          return a.id - b.id;
+        });
+
         for (var q = 0; q < _this.data.mustList.length; q++) {
           // for (var b = 0; b < _this.data.answerList.length; b++) {
 
@@ -1218,7 +1349,7 @@ Page(Object.assign({
       api.getAppAnswerSave({
         data: saveModel,
         success: (res) => {
-          console.log(res);
+          // console.log(res);
           if (e.type != "longpress") {
             if (res.data.code == "200") {
               wx.showModal({
@@ -1257,7 +1388,7 @@ Page(Object.assign({
     },
     saveLocation() {
       var _this = this;
-      console.log(JSON.stringify(this.data.anserResult));
+      // console.log(JSON.stringify(this.data.anserResult));
       var forinModel = this.data.anserResult;
       for (var mkey in forinModel) {
         for (var i = 0; i < _this.data.answerList.length; i++) {
@@ -1270,7 +1401,7 @@ Page(Object.assign({
           "result": forinModel[mkey]
         });
       }
-      console.log(_this.data.answerList)
+      // console.log(_this.data.answerList)
       var saveModel = {};
       saveModel.id = this.data.uid;
 
@@ -1284,7 +1415,7 @@ Page(Object.assign({
       api.getAppAnswerSave({
         data: saveModel,
         success: (res) => {
-          console.log(res);
+          // console.log(res);
         }
       });
     }

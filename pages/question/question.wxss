@@ -270,7 +270,7 @@ right:3rpx;
 .routateimg{
   height:600rpx;
 width:200rpx;
-transform:translate(200rpx,-200rpx) rotate(90deg);
+transform:translate(200rpx,-200rpx) rotate(270deg);
 }
 .routateimg image{
   height:100%;

@@ -51,10 +51,13 @@
               />
             </block>
             <block wx:if="{{oitem.sub_cat=='loCation'}}">
-              <input value='{{oitem.result?oitem.result.locationName:""}}' data-id="{{oitem.id}}_locationName" bindinput="inputgetValue" bindinput="inputgetValue">
+              <block wx:if="{{oitem.result}}">
+                <input value='{{oitem.result?oitem.result.locationName:""}}' data-id="{{oitem.id}}_locationName" bindinput="inputgetValue" bindinput="inputgetValue">
               </input>
               <input value='{{oitem.result?oitem.result.addresname:""}}' data-id="{{oitem.id}}_addresname" bindinput="inputgetValue" bindinput="inputgetValue">
               </input>
+              </block>
+            
               <button bindtap='btnchoose' type='primary' data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">获取当前位置</button>
             </block>
             <block wx:if="{{oitem.sub_cat=='signature'}}">
@@ -65,7 +68,7 @@
                 <block wx:else>
                   <image src="{{urlsrc}}" bindtap="chooseImage" bindlongpress="deleteImage"></image>
                 </block> -->
-                <block wx:if="{{oitem.result==''}}">
+                <block wx:if="{{!oitem.result}}">
                   <button bindtap="signshow" class='uploadsignbtn' data-id="{{oitem.id}}">点击我签名</button>
                 </block>
                 <block wx:else>
@@ -146,8 +149,14 @@
                   </block>
                   <block wx:if="{{mitem.sub_cat=='loCation'}}">
                     <!-- <view>{{mitem.result}}</view> -->
-                    <view>{{mitem.result?mitem.result.locationName:""}}</view>
-                    <view>{{mitem.result?mitem.result.addresname:""}}</view>
+                    <!-- <view>{{mitem.result?mitem.result.locationName:""}}</view>
+                    <view>{{mitem.result?mitem.result.addresname:""}}</view>-->
+                <block wx:if="{{mitem.result}}">
+               <input value='{{mitem.result?mitem.result.locationName:""}}' data-id="{{mitem.id}}_locationName" bindinput="inputgetValue" bindinput="inputgetValue">
+              </input>
+              <input value='{{mitem.result?mitem.result.addresname:""}}' data-id="{{mitem.id}}_addresname" bindinput="inputgetValue" bindinput="inputgetValue">
+              </input>
+              </block>
                     <button bindtap='btnchoose' type='primary' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}">获取当前位置</button>
                   </block>
                   <block wx:if="{{mitem.sub_cat=='uploadimg'}}">

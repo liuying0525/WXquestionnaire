@@ -1,5 +1,5 @@
 App({
-  onLaunch: function() {
+  onShow: function() {
     var _this = this;
     if (wx.getStorageSync("userOpenid")) {
       wx.login({
@@ -21,40 +21,42 @@ App({
           }
         }
       });
-    }
-    wx.checkSession({　　　　
-      success: function(chres) {},
-      fail: function(chres) {
-        wx.getSetting({
-          success: (res) => {
-            if (res.authSetting["scope.userInfo"]) {
-              wx.login({
-                success: (data) => {
-                  if (data.code) {
-                    wx.getUserInfo({
-                      withCredentials: true,
-                      success: udata => {
-                        console.log("udata=" + udata);
-                      }
-                    });
+    }else{
+      wx.checkSession({
+        success: function (chres) { },
+        fail: function (chres) {
+          wx.getSetting({
+            success: (res) => {
+              if (!!res.authSetting["scope.userInfo"]) {
+                wx.login({
+                  success: (data) => {
+                    if (data.code) {
+                      wx.getUserInfo({
+                        withCredentials: true,
+                        success: udata => {
+                          console.log("udata=" + udata);
+                        }
+                      });
+                    }
                   }
+                });
+                if (this.userInfoReadyCallback) {
+                  this.userInfoReadyCallback(res);
                 }
-              });
-              if (this.userInfoReadyCallback) {
-                this.userInfoReadyCallback(res);
+              } else {
+                wx.switchTab({
+                  url: '/pages/userInfo/userInfo',
+                  fail: function () {
+                    console.info("跳转失败");
+                  }
+                });
               }
-            } else {
-              wx.switchTab({
-                url: '/pages/userInfo/userInfo',
-                fail: function() {
-                  console.info("跳转失败");
-                }
-              });
             }
-          }
-        });
-      }
-    });
+          });
+        }
+      });
+    }
+ 
   },
   setWatcher(page) {
     let data = page.data;

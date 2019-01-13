@@ -240,7 +240,7 @@ Page({
     //		});
   },
   /**
-   * 页面相关事件处理函数--监听用户下拉动作  上拉应该是刷新吧？
+   * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function() {
     this.setData({

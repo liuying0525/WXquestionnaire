@@ -7,6 +7,8 @@ Page({
    * 页面的初始数据
    */
   data: {
+    deviceWidth: 0,
+    deviceHeight: 0,
     navTab: ['全部', '待提交', '已完成'],
     currentTab: 0,
     sendList: [],
@@ -23,7 +25,15 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
-
+    var that = this;
+    util.getSystemInfo({
+      success: (res) => {
+        that.setData({
+          deviceWidth: res.windowWidth,
+          deviceHeight: res.windowHeight
+        });
+      }
+    });
   },
 
   /**
@@ -92,10 +102,20 @@ Page({
     this.setData({
       page: cpage,
     });
+
+
+    var that = this;
+    // var scrollHeight = (that.data.page+1) * that.data.deviceHeight
+    //   wx.pageScrollTo({
+    //     scrollTop: scrollHeight,
+    //     duration: 0
+    //   })
     this.getData("加载更多数据").then(data => { //
-      // this.setData({
-      //   sendList: this.data.sendList.concat(data)
-      // });
+//       var oldsendList = this.data.sendList;
+// debugger
+//       this.setData({
+//         sendList: oldsendList.concat(data)
+//       });
     });
   },
 
@@ -122,6 +142,7 @@ Page({
     this.setData({
       sendList: []
     });
+   
     wx.pageScrollTo({
       scrollTop: 0,
       duration: 0
@@ -145,8 +166,8 @@ Page({
           var page_cuts = res.data.data.pageInfo.count / _this.select.size
           if (_this.select.isEnd) return;
           _this.setData({
-            //sendList: (_this.data.sendList).concat(content)  
-             sendList: content 
+           sendList: (_this.data.sendList).concat(content)  
+            //  sendList: content 
           })
           // debugger
           // if (page_cuts > _this.select.page) {
