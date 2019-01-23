@@ -26,6 +26,7 @@ Page({
    */
   onLoad: function(options) {
     var that = this;
+    console.log(options)
     util.getSystemInfo({
       success: (res) => {
         that.setData({
@@ -46,13 +47,19 @@ Page({
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function() {
+  onShow: function() { 
+    // debugger
     if (!wx.getStorageSync("userOpenid")) return;
     this.initialization("加载中");
+    // console.log(this.data.sendList.length)
   },
   initialization: function(msg) {
+    var _this=this
     this.getData(msg).then(data => {
-
+      _this.setData({
+        sendList: (_this.data.sendList).concat(data)
+        
+      })
 
     });
   },
@@ -162,12 +169,18 @@ Page({
           search: _this.data.inputValue || ""
         },
         success: (res) => {
+          // debugger
           var content = res.data.data.data;
-          var page_cuts = res.data.data.pageInfo.count / _this.select.size
+          var page_cuts = res.data.data.pageInfo.count / _this.select.size;
+          if (Math.floor(page_cuts)<=1 && _this.select.isEnd){
+            _this.setData({
+              sendList: content
+            })
+            return
+          }
           if (_this.select.isEnd) return;
           _this.setData({
-           sendList: (_this.data.sendList).concat(content)  
-            //  sendList: content 
+           sendList: (_this.data.sendList).concat(content) 
           })
           // debugger
           // if (page_cuts > _this.select.page) {
@@ -177,6 +190,7 @@ Page({
             _this.select.isEnd = true;
           }
           resolve(content);
+          // console.log(this.data.sendList.length)
         },
         fail: res => {
           reject(res);
@@ -190,6 +204,7 @@ Page({
     var id = e.currentTarget.dataset.id;
 
     wx.navigateTo({
+    // wx.redirectTo({
       url: '../question/question?uid=' + uid + '&answer_id=' + id
 
     })

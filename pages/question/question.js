@@ -71,7 +71,7 @@ Page(Object.assign({
       rsModel[e.currentTarget.dataset.id] = txtValue;
       if (e.currentTarget.dataset.hasOwnProperty("mindex")) {
         gData[lindex].item[oindex].item[mindex].result = txtValue; // 保存选择过的内容;
-
+debugger
         var optionMax = Math.max.apply(Math, gData[lindex].item[oindex].item[mindex].option.map(function(o) {
           return o.skip_sub
         }));
@@ -111,6 +111,7 @@ Page(Object.assign({
             }
             if (this.data.changeItemModel.option.filter(o => o.id == txtValue).length > 0) {
               var osubidList = gData[lindex].item[oindex].item[mindex].option.filter(b => b.related_sub != "0");
+              debugger
               //移除当选提有关联选项
               for (var jj = 0; jj < osubidList.length; jj++) {
                 var iindex = gData[lindex].item[oindex].item.indexOf(gData[lindex].item[oindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
@@ -140,8 +141,9 @@ Page(Object.assign({
           }
         }
       } else {
-
+        // debugger
         gData[lindex].item[oindex].result = txtValue; // 保存选择过的内容;
+        debugger
         var optionMax = Math.max.apply(Math, gData[lindex].item[oindex].option.map(function(o) {
           return o.skip_sub
         }));
@@ -157,7 +159,7 @@ Page(Object.assign({
               var inifilterList = gData[lindex].item.filter(o => o.id > id && o.id < optionMax);
               for (var om = 0; om < inifilterList.length; om++) {
                 if (inimustList.filter(o => o.id == inifilterList[om].id)) {
-                  inifilterList[om].is_must = "1";
+                  // inifilterList[om].is_must = "1";
                   if (mustList.filter(o => o.id == inifilterList[om].id).length == 0) {
                     mustList.push({
                       "id": inifilterList[om].id,
@@ -179,19 +181,21 @@ Page(Object.assign({
               var osubidList = gData[lindex].item[oindex].option.filter(b => b.related_sub != "0");
               //移除当选提有关联选项
               for (var jj = 0; jj < osubidList.length; jj++) {
-                var iindex = gData[lindex].item.indexOf(gData[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
-                if (this.data.qlist[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].is_must == "1") {
-                  if (mustList.filter(o => o.id == osubidList[jj].related_sub).length == 0) {
-                    mustList.push({
-                      "id": osubidList[jj].related_sub,
-                      "questionname": this.data.qlist[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].title
-                    });
+                if (!!osubidList[jj].related_sub && osubidList[jj].related_sub != "请选择") {
+                  var iindex = gData[lindex].item.indexOf(gData[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                  if (this.data.qlist[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].is_must == "1") {
+                    if (mustList.filter(o => o.id == osubidList[jj].related_sub).length == 0) {
+                      mustList.push({
+                        "id": osubidList[jj].related_sub,
+                        "questionname": this.data.qlist[lindex].item.filter(o => o.id == osubidList[jj].related_sub)[0].title
+                      });
+                    }
                   }
-                }
-                if (iindex != -1) {
-                  var ssindex = mustList.indexOf(mustList.filter(o => o.id == osubidList[jj].related_sub)[0]);
-                  ssindex != -1 && mustList.splice(ssindex, 1);
-                  gData[lindex].item.splice(iindex, 1);
+                  if (iindex != -1) {
+                    var ssindex = mustList.indexOf(mustList.filter(o => o.id == osubidList[jj].related_sub)[0]);
+                    ssindex != -1 && mustList.splice(ssindex, 1);
+                    gData[lindex].item.splice(iindex, 1);
+                  }
                 }
               }
             }
@@ -203,18 +207,21 @@ Page(Object.assign({
           }
         }
       }
+    // if()
+
       _this.setData({
         anserResult: rsModel,
         toView: toViewid,
-        qmlist: gData,
+        // qmlist: gData,
         mustList: mustList
       });
-
+// debugger
     },
     inputgetValue: function(e) {
       var id = e.currentTarget.dataset.id;
       var txtValue = e.detail.value;
       var rsModel = this.data.anserResult;
+    
       if (id.indexOf("_") != -1) {
         var nid = id.split('_')[0];
         var nname = id.split('_')[1];
@@ -775,6 +782,7 @@ Page(Object.assign({
      * 生命周期函数--监听页面加载
      */
     onLoad: function(options) {
+      // console.log(options);
       wx.removeStorageSync("upLoadUrlInfo");
       var that = this;
       //页面初始化options为页面跳转所带来的参数 res.windowHeight
@@ -786,17 +794,30 @@ Page(Object.assign({
           });
         }
       });
-      var uid = options.uid;
-      this.setData({
-        uid: uid,
-        quecont: options.que || 0
-      });
-      if (!options.que) {
-        var answer_id = options.answer_id;
+
+      if (options.scene) {
+        let scene = decodeURIComponent(options.scene);
+        //&是我们定义的参数链接方式
+        let codeuid = scene.split("&")[0].split("=")[1];
+        let codequecont = scene.split('&')[1].split("=")[1] || 0
         this.setData({
-          answer_id: answer_id
+          uid: codeuid ,
+          quecont: codequecont
         });
+      }else{
+        var uid = options.uid;
+        this.setData({
+          uid: uid,
+          quecont: options.que || 0
+        });
+        if (!options.que) {
+          var answer_id = options.answer_id;
+          this.setData({
+            answer_id: answer_id
+          });
+        }
       }
+  
       this.getDataInitialization(this.data.uid, this.data.answer_id);
     },
     getDataInitialization(uid, answer_id) {
@@ -845,6 +866,7 @@ Page(Object.assign({
           var items = nlist[i];
           var item = [];
           var ncitem = [];
+          // debugger
           for (var m = 0, n = items.item.length; m < n; m++) {
             if (items.item[m].sub_cat == "comprehensive") {
               var citem = items.item[m].item;
@@ -853,8 +875,8 @@ Page(Object.assign({
                   ncitem.push(citem[op]);
                 }
               }
-              items.item[m].item = ncitem;
-              item.push(items.item[m]);
+              // items.item[m].item = ncitem;
+              // item.push(items.item[m]);
             } else {
               if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
                 item.push(items.item[m]);
@@ -865,6 +887,7 @@ Page(Object.assign({
             items.item = item;
           }
           resultList.push(items);
+         
         }
         //答案回显 需要追加到具体位置
         for (var i = 0, qq = resultList.length; i < qq; i++) {
@@ -971,7 +994,6 @@ Page(Object.assign({
           qmlist: resultList,
           inimustList: inimustList
         });
-
       });
     },
     getData: function(uid, answer_id) {
@@ -1214,6 +1236,7 @@ Page(Object.assign({
       var upLoadUrlInfo = wx.getStorageSync("upLoadUrlInfo") || {};
       if (JSON.stringify(upLoadUrlInfo) != "{}") {
         var gData = this.data.qmlist;
+        // debugger
         var rsModel = this.data.anserResult;
         for (var key in upLoadUrlInfo) {
           rsModel[key] = upLoadUrlInfo[key];

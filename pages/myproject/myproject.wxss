@@ -18,6 +18,8 @@ top:182rpx;
   display: block;
   text-align: center;
   margin-top:25%;
+  height:500rpx;
+  width: 100%
   
 }
 .noneimage image{

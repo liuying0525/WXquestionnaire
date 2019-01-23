@@ -232,6 +232,8 @@ picker {
   position: relative;
   min-width: 20%;
   margin-right:2%;
+  font-size:34rpx;
+
 }
 .pickericon{
    width: 0;

@@ -198,3 +198,16 @@ height:60rpx;
 padding:0 20rpx;
 
 }
+.noneimage{
+  display: block;
+  text-align: center;
+  margin-top:25%;
+  
+}
+.noneimage image{
+height:100rpx;
+  width:100rpx;
+}
+.noneimage text{
+  display: block
+}

@@ -8,19 +8,18 @@
     <text>{{item}}</text>
   </view>
 </view>
+ 
 <view class='orderInfo'>
   <!-- <view class='orderInfo-item' wx:for="{{sendList}}" wx:key="index">{{item.content}}</view> -->
-
- 
+<!-- 
+   <view wx:if="{{sendList.length==0}}" class="noneimage" >
+    <image src='../../images/none.png'></image>
+    <text>你还没有项目哦~</text>
+  </view> -->
     <view class="orderInfo-item">
       <!-- <view class="orderInfo-item" wx:for="{{sendList}}" wx:key="index"> -->
       <!-- {{item.content}} -->
-      <block wx:for="{{sendList}}" wx:key="{{index}}">
-  <view wx:if="{{sendList.length==0}}" class="noneimage">
-    <image src='../../images/none.png'></image>
-    <text>你还没有项目哦~</text>
-  </view>
-   <view wx:else>
+     <block wx:for="{{sendList}}" wx:key="{{index}}">
         <view class="classify_recommendeds_right" bindtap="tapName" data-uid="{{item.sub_id}}" data-id="{{item.id}}">
           <view class='recommendeds_right_left'>
             <text>{{item.sub_name}}</text>
@@ -29,8 +28,9 @@
           </view>
           <image class='recommendeds_right_right' wx:if="{{item.status==2}}" src="../../../images/edit.png" class="editicon"></image>
         </view>
-         </view>
-      </block>
+  
+</block>
+      
     </view>
  
 </view>

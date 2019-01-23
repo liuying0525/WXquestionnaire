@@ -3,13 +3,20 @@
 <input bindinput="bindKeyInput" confirm-type="search" placeholder='搜索' bindconfirm="confirm" data-type="input">{{inputValue}}</input>
 <!-- <icon type="search" size="20" bindtouchstart='confirm' data-type="icon"/> -->
 </view>
+
 <view class='classify_page'>
   <view class='classify_page_left' style="height:{{deviceHeight}}px">
     <import src="templates/recommendeds.wxml" />
     <template is="classify_recommendeds_left" data="{{type:sName,leftArray:firstCategoryList}}" />
   </view>
   <view class='classify_page_right' style="height:{{deviceHeight}}px" >
+    <!-- <view wx:if="{{secondCateGoryList.length==0}}" class="noneimage">
+    <image src='../../images/none.png'></image>
+    <text>暂时列表里还没有内容哦~</text>
+  </view> -->
+
     <import src="templates/recommendeds.wxml"/>
     <template is="classify_recommendeds_right" data="{{type:sName,rightArray:secondCateGoryList}}" />
-  </view>
+ 
+</view>
 </view>

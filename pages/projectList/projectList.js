@@ -257,7 +257,7 @@ Page({
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function() {
-    console.log("this.data.isMore=" + this.data.isMore);
+    // console.log("this.data.isMore=" + this.data.isMore);
     if (!this.data.isMore) {
       return wx.showToast({
         title: '没有更多数据'

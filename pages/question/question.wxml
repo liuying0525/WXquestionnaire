@@ -127,7 +127,8 @@
                   <i wx:if="{{!!mitem.is_must&&mitem.is_must!='0'}}">*</i>
                   <text>{{mindex+1}}){{mitem.title}}</text>
                   <block wx:if="{{mitem.sub_cat=='fill'}}">
-                    <input placeholder="{{mitem.title}}" value="{{mitem.result}}" data-id="{{mitem.id}}" bindinput="inputgetValue" />
+                    <!-- <input placeholder="{{mitem.title}}" value="{{mitem.result}}" data-id="{{mitem.id}}" bindinput="inputgetValue" /> -->
+                       <input placeholder="" value="{{mitem.result}}" data-id="{{mitem.id}}" bindinput="inputgetValue" />
                   </block>
                   <block wx:if="{{mitem.sub_cat=='single'}}">
                     <radio-group class="radio-group" bindchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-mindex="{{mindex}}">
