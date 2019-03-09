@@ -196,6 +196,10 @@ Page({
     });
   },
   getLeftArrary: function(msg) {
+    wx.pageScrollTo({
+      scrollTop: 0,
+      duration: 0
+    });
     var _this = this;
     return new Promise((resolve, reject) => {
       api.getAppAreaInfo({

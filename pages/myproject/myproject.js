@@ -14,7 +14,6 @@ Page({
     sendList: [],
     inputValue: ''
   },
-  //写这里都是错误的
   select: {
     page: 1,
     size: 6,
@@ -25,8 +24,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
+  
     var that = this;
-    console.log(options)
     util.getSystemInfo({
       success: (res) => {
         that.setData({
@@ -48,18 +47,23 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function() { 
-    // debugger
+   this.setData({
+     currentTab: app.globalData.currentTab
+   })
+    
+    this.data.sendList = [];
     if (!wx.getStorageSync("userOpenid")) return;
     this.initialization("加载中");
     // console.log(this.data.sendList.length)
   },
   initialization: function(msg) {
-    var _this=this
+    var _this=this;
+
     this.getData(msg).then(data => {
       _this.setData({
-        sendList: (_this.data.sendList).concat(data)
-        
-      })
+        sendList: _this.data.sendList.concat(data)
+      });
+      // debugger
 
     });
   },
@@ -69,13 +73,15 @@ Page({
    */
   onHide: function() {
     this.select.page = 1;
+  app.globalData.currentTab=0;
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function() {
-
+    this.data.sendList = [];
+    app.globalData.currentTab = 0;
   },
 
   /**
@@ -100,7 +106,7 @@ Page({
    */
   onReachBottom: function() {
     // console.log("this.data.isMore=" + this.data.isMore);
-    if (!!this.select.isEnd) {
+    if (this.select.isEnd) {
       return wx.showToast({
         title: '没有更多数据'
       });
@@ -123,6 +129,11 @@ Page({
 //       this.setData({
 //         sendList: oldsendList.concat(data)
 //       });
+    if (this.select.isEnd) {
+      return wx.showToast({
+        title: '没有更多数据'
+      });
+    }
     });
   },
 
@@ -158,7 +169,7 @@ Page({
   },
   getData: function(massege) {
     var _this = this;
-    // if (_this.select.isEnd) return;
+   //if (_this.select.isEnd) return;
     var type = this.data.currentTab;
     return new Promise((resolve, reject) => {
       api.getAppAnswerLst({
@@ -172,20 +183,21 @@ Page({
           // debugger
           var content = res.data.data.data;
           var page_cuts = res.data.data.pageInfo.count / _this.select.size;
-          if (Math.floor(page_cuts)<=1 && _this.select.isEnd){
+          if (Math.round(page_cuts)<=1 && !_this.select.isEnd){
             _this.setData({
               sendList: content
             })
             return
           }
-          if (_this.select.isEnd) return;
-          _this.setData({
-           sendList: (_this.data.sendList).concat(content) 
-          })
+          // if (_this.select.isEnd) return;
+       
           // debugger
           // if (page_cuts > _this.select.page) {
-          if (res.data.data.pageInfo.page > _this.select.page) {
+          if (res.data.data.pageInfo.page >= _this.select.page) {
             _this.select.page++
+            _this.setData({
+              sendList: this.data.sendList.concat(content)
+            })
           } else {
             _this.select.isEnd = true;
           }

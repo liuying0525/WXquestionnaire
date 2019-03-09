@@ -5,11 +5,11 @@
 </view>
 
 <view class='classify_page'>
-  <view class='classify_page_left' style="height:{{deviceHeight}}px">
+  <view class='classify_page_left' style="height:{{deviceHeight*2-82}}rpx">
     <import src="templates/recommendeds.wxml" />
     <template is="classify_recommendeds_left" data="{{type:sName,leftArray:firstCategoryList}}" />
   </view>
-  <view class='classify_page_right' style="height:{{deviceHeight}}px" >
+  <view class='classify_page_right' style="height:{{deviceHeight*2-82}}rpx" >
     <!-- <view wx:if="{{secondCateGoryList.length==0}}" class="noneimage">
     <image src='../../images/none.png'></image>
     <text>暂时列表里还没有内容哦~</text>

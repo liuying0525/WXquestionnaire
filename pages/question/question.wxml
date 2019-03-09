@@ -131,7 +131,7 @@
                        <input placeholder="" value="{{mitem.result}}" data-id="{{mitem.id}}" bindinput="inputgetValue" />
                   </block>
                   <block wx:if="{{mitem.sub_cat=='single'}}">
-                    <radio-group class="radio-group" bindchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-mindex="{{mindex}}">
+                    <radio-group class="radio-group" catchchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-mindex="{{mindex}}">
                       <label class="radio" wx:for="{{mitem.option}}" wx:for-item="mitemo" wx:key="{{mitemo}}">
                         <radio value="{{mitemo.id}}" checked="{{mitemo.default_choose=='1'||mitem.result==mitemo.id }}" />{{mitemo.option_name}}
                       </label>

@@ -16,7 +16,9 @@
    </scroll-view>
 </template>
 <template name="classify_recommendeds_left">
+<scroll-view scroll-y>
   <block wx:for="{{leftArray}}" wx:key="{{index}}">
  	<view class="classify_recommendeds_left {{item==type?'active':''}}"  data-id="{{index}}" data-name="{{item}}" bindtap="tapCategory">{{item}}</view>
   </block>
+  </scroll-view>
 </template>

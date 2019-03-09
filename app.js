@@ -102,5 +102,6 @@ App({
   globalData: {
     userInfo: null,
     userOpenid: "",
+    currentTab:0,
   }
 })　　　　
