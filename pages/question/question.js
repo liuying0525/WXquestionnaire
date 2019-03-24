@@ -83,12 +83,10 @@ Page(Object.assign({
           gData[lindex].item[oindex].item[mindex].option[v].default_choose = "0";
           if (txtValue == gData[lindex].item[oindex].item[mindex].option[v].id) {
             var skip_sub = gData[lindex].item[oindex].item[mindex].option[v].skip_sub;
-            //gData[lindex].item[oindex].item[mindex].option[v].skip_sub'
             //跳转逻辑
             if (skip_sub != "0" && skip_sub != "") {
               toViewid = 'list' + skip_sub;
               var inifilterList = gData[lindex].item[oindex].item.filter(o => o.id > id && o.id < optionMax);
-
               for (var om = 0; om < inifilterList.length; om++) {
                 if (inimustList.filter(o => o.id == inifilterList[om].id)) {
                   inifilterList[om].is_must = "1";
@@ -131,19 +129,26 @@ Page(Object.assign({
             var subId = gData[lindex].item[oindex].item[mindex].option[v].related_sub.trim().split(',');
             for (var jm = 0; jm < subId.length; jm++) {
               if (subId[jm] != "" && subId[jm] != "0") {
-                var objItem = (this.data.qlist[lindex].mod[mindex].item.filter(b => b.id == subId[jm]) > 0) && (this.data.qlist[lindex].mod[mindex].item.filter(b => b.id == subId[jm])[0]);
-                if (!objItem) {
-                  return
+                var relataModel = this.data.relateSub.filter(o => o.id == subId[jm]);
+                if (relataModel.length > 0) {
+                  if (relataModel[0].model == "moItem" || relataModel[0].model == "mocom") {
+                    var objItem = this.data.qlist[lindex].item.filter(b => b.id == subId[jm]);
+                    if (objItem.length > 0) {
+                      gData[lindex].item[oindex].splice(mindex + 1, 0, objItem);
+                    }
+                  } else {
+                    var objItem = this.data.qlist.filter(b => b.id == subId[jm])[0];
+                    if (objItem != undefined) {
+                      gData.splice(oindex + 1, 1, objItem);
+                    }
+                  }
                 }
-                gData[lindex].item[oindex].item.splice(mindex + 1, 0, objItem);
               }
             }
           }
         }
       } else {
-        // debugger
         gData[lindex].item[oindex].result = txtValue; // 保存选择过的内容;
-        // debugger
         var optionMax = Math.max.apply(Math, gData[lindex].item[oindex].option.map(function(o) {
           return o.skip_sub
         }));
@@ -151,7 +156,6 @@ Page(Object.assign({
           gData[lindex].item[oindex].option[v].default_choose = "0";
           if (txtValue == gData[lindex].item[oindex].option[v].id) {
             gData[lindex].item[oindex].option[v].default_choose = "1";
-
             var skip_sub = gData[lindex].item[oindex].option[v].skip_sub;
             //跳转逻辑
             if (skip_sub != "" && skip_sub != "0") {
@@ -183,25 +187,26 @@ Page(Object.assign({
                 if (!!osubidList[jj].related_sub && osubidList[jj].related_sub != "请选择") {
                   var osRelateds = osubidList[jj].related_sub.trim().split(',');
                   for (var qm = 0; qm < osRelateds.length; qm++) {
-                    if (osRelateds[qm] != "" && gData[lindex].item.filter(o => o.id == osRelateds[qm]).length > 0) {
-
-                      if (gData[lindex].item.sub_cat != "comprehensive") {
-                        var iindex = gData[lindex].item.indexOf(gData[lindex].item.filter(o => o.id == osRelateds[qm])[0]);
-                        if (gData[lindex].item.filter(o => o.id == osRelateds[qm])[0].is_must == "1") {
-                          if (mustList.filter(o => o.id == osRelateds[qm]).length == 0) {
-                            mustList.push({
-                              "id": osRelateds[qm],
-                              "questionname": gData[lindex].item.filter(o => o.id == osRelateds[qm])[0].title
-                            });
+                    var relataModel = this.data.relateSub.filter(o => o.id == osRelateds[qm]);
+                    if (relataModel.length > 0) {
+                      if (relataModel[0].model == "molitem" || relataModel[0].model == "molcom") {
+                        for (var im = 0; im < gData.length; im++) {
+                          for (var km = 0; km < gData[im].item.length; km++) {
+                            if (gData[im].item[km].id == osRelateds[qm]) {
+                              var objItem = gData[im].item.filter(o => o.id == osRelateds[qm]);
+                              var ssindex = gData[im].item.indexOf(objItem[0]);
+                              ssindex != -1 && gData[im].item.splice(ssindex, 1);
+                            }
                           }
                         }
-                        if (iindex != -1) {
-                          var ssindex = mustList.indexOf(mustList.filter(o => o.id == osRelateds[qm])[0]);
-                          ssindex != -1 && mustList.splice(ssindex, 1);
-                          gData[lindex].item.splice(iindex, 1);
+                      } else if (relataModel[0].model == "mollist") {
+                        //模块的移除
+                        var removeMol = gData.filter(o => o.id == osRelateds[qm]);
+                        if (removeMol.length > 0) {
+                          var ssindex = gData.indexOf(removeMol[0]);
+                          ssindex != -1 && gData.splice(ssindex, 1);
                         }
                       }
-
                     }
                   }
                 }
@@ -210,28 +215,57 @@ Page(Object.assign({
             var subId = gData[lindex].item[oindex].option[v].related_sub.trim().split(',');
             for (var jm = 0; jm < subId.length; jm++) {
               if (subId[jm] != "" && subId[jm] != "0") {
-                var objItem = this.data.qlist[lindex].item.filter(b => b.id == subId[jm])[0];
-             
-                if (objItem == undefined) {
-                  if (this.data.qlist.filter(b => b.id == subId[jm]).length>0){
-                    objItem = this.data.qlist.filter(b => b.id == subId[jm])[0];
-                   
-                  }else{
-                    objItem = this.data.qlist[lindex].mod.filter(b => b.id == subId[jm])[0];
-                        objItem.serial_number = parseInt(objItem.serial_number);
-                    objItem.sub_cat = "comprehensive";
-                    objItem.title = objItem.mod_name;
-                  }
-                }
-                if (objItem != undefined ) {
-                  if (objItem.pid == this.data.uid) {
-                    gData.splice(oindex + 1, 1, objItem);
-                  }else{     
-                    gData[lindex].item.splice(oindex + 1, 0, objItem);                  
+                var relataModel = this.data.relateSub.filter(o => o.id == subId[jm]);
+                if (relataModel.length > 0) {
+                  if (relataModel[0].model == "molitem") {
+                    var comobj = relataModel[0].serial_number.split('_');
+                    for (var kp = 0; kp < this.data.qlist.length; kp++) {
+                      var objItem = this.data.qlist[kp].item.filter(o => o.id == comobj[1])[0];
+                      if (objItem != undefined) {
+                        var pid = objItem.chief || objItem.pid;
+                        if (gData.filter(o => o.id == pid).length == 0) {
+                          var inserItem = JSON.parse(JSON.stringify(this.data.qlist[kp]));
+                          inserItem.item = inserItem.item.filter(o => o.id == comobj[1]);
+                          gData.splice(0, 0, inserItem);
+                        } else {
+                          gData.filter(o => o.id == pid)[0].item.splice(0, 0, objItem);
+                        }
+                        // for (var zz = 0; zz < gData.length; zz++) {
+                        //   if (gData[zz].id == comobj[0]) {
+                        //     gData[zz].item.splice(0, 0, objItem);
+                        //   } else {
+                        //    // gData.splice(0, 0, objItem);
+                        //   }
+                        // }
+                      }
+                    }
+                  } else if (relataModel[0].model == "mollist") {
+                    var comobj = relataModel[0].serial_number.split('_');
+                    var objItem = this.data.qlist.filter(o => o.id == comobj[0])[0];
+                    if (objItem != undefined) {
+                      gData.splice(0, 0, objItem);
+                    }
+                  } else if (relataModel[0].model == "molcom") {
+                    var comobj = relataModel[0].serial_number.split('_');
+                    for (var kp = 0; kp < this.data.qlist.length; kp++) {
+                      var objItem = this.data.qlist[kp].item.filter(o => o.id == comobj[1])[0];
+                      if (objItem != undefined) {
+                        objItem.item = objItem.item.filter(o => o.id == comobj[2]);
+                        for (var zz = 0; zz < gData.length; zz++) {
+                          if (gData[zz].id == comobj[0]) {
+                            gData[zz].item.splice(0, 0, objItem);
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
+            //多重排序
+            gData.sort(function(a, b) {
+              return a.serial_number - b.serial_number;
+            });
             gData[lindex].item.sort(function(a, b) {
               return a.serial_number - b.serial_number;
             });
@@ -875,51 +909,54 @@ Page(Object.assign({
             for (var w = 0; w < mm.item.length; w++) {
               var related = mm.item[w].serial_number;
               if (mm.item[w].hasOwnProperty("item")) {
-                this.itemResult(dist,mm.item[w].item, AnserList, related);
+                this.itemResult(dist, mm.item[w].item, AnserList, related);
               }
             }
           }
-          this.itemResult(dist,mm.item, AnserList, related);
+          this.itemResult(dist, mm.item, AnserList, related);
           nlist.push(mm);
+          itemmodList.push(mm);
         }
+
+        // 初始化所有的关联
+        this.getInitrelateSub(itemmodList);
+
+        itemDist = JSON.parse(JSON.stringify(itemmodList)); //保存排序好的初始化
         // 初始化有关联的题目不加载 2018.10.28
         var resultList = [];
         for (var i = 0, k = nlist.length; i < k; i++) {
           if (this.data.relateSub.filter(o => o.id == nlist[i].id).length == 0) {
-          var items = nlist[i];
-          var item = [];
-          var ncitem = [];
-          for (var m = 0, n = items.item.length; m < n; m++) {
-            if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
-              if (items.item[m].sub_cat == "comprehensive") {
-                var citem = items.item[m].item;
-                for (var op = 0; op < citem.length; op++) {
-                  if (this.data.relateSub.filter(o => o.id == citem[op].id).length == 0) {
-                    ncitem.push(citem[op]);
+            var items = nlist[i];
+            var item = [];
+            var ncitem = [];
+            for (var m = 0, n = items.item.length; m < n; m++) {
+              if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
+                if (items.item[m].sub_cat == "comprehensive") {
+                  var citem = items.item[m].item;
+                  for (var op = 0; op < citem.length; op++) {
+                    if (this.data.relateSub.filter(o => o.id == citem[op].id).length == 0) {
+                      ncitem.push(citem[op]);
+                    }
                   }
-                }
-                items.item[m].item = ncitem;
-                item.push(items.item[m]);
-              } else {
-                // if (this.data.relateSub.filter(o => o.id == items.item[m].id).length == 0) {
+                  items.item[m].item = ncitem;
                   item.push(items.item[m]);
-                // }
+                } else {
+                  item.push(items.item[m]);
+                }
               }
             }
-          }
             if (item.length > 0) {
               items.item = item;
+              resultList.push(items);
             }
-            resultList.push(items);
           }
-         
         }
         //答案回显 需要追加到具体位置
         for (var i = 0, qq = resultList.length; i < qq; i++) {
           var items = resultList[i];
           var item = [];
           var relpaceModel = {};
-          for (var m = 0, n = items.item.length - 1; m < n; m++) {
+          for (var m = 0, n = items.item.length; m < n; m++) {
             if (items.item[m].sub_cat == "single") {
               if (items.item[m].result != null && items.item[m].result != "" && items.item[m].result != "0") {
                 var options = items.item[m].option.filter(o => o.id == items.item[m].result)[0];
@@ -957,7 +994,18 @@ Page(Object.assign({
                         }
                       }
                     }
-                    objItem && (resultList[i].item.splice(m + 1, 0, objItem));
+                    //objItem && (resultList[i].item.splice(m + 1, 0, objItem));
+                    if (objItem) {
+                      if (resultList[i].item.filter(o => o.id == objItem.id).length == 0) {
+                        resultList[i].item.splice(m + 1, 0, objItem);
+                      }
+                    }
+                  }
+
+                  //追加显示模块
+                  var objItemol = itemDist.filter(b => b.id == options.related_sub);
+                  if (objItemol) {
+                    resultList.splice(i + 1, 0, objItemol[0]);
                   }
                 }
               }
@@ -1012,7 +1060,6 @@ Page(Object.assign({
           }
 
         }
-
         var inimustList = JSON.parse(JSON.stringify(this.data.mustList)); //初始化保存
         this.setData({
           qlist: itemDist,
@@ -1038,32 +1085,118 @@ Page(Object.assign({
         });
       });
     },
-    itemResult: function(mode,modelItem, AnserList, related) { //modelItem= mm.item
+    getInitrelateSub: function(list) {
+      var qlist = list;
+      for (var i = 0; i < qlist.length; i++) {
+        var sigitem = qlist[i].item.filter(o => o.sub_cat == 'single');
+        var comitem = qlist[i].item.filter(o => o.sub_cat == 'comprehensive');
+        for (var j = 0; j < sigitem.length; j++) {
+          for (var k = 0; k < sigitem[j].option.length; k++) {
+            if (sigitem[j].option[k].related_sub != "") {
+              this.getInitrelateSubSaveItem(list, sigitem[j].option[k].related_sub);
+            }
+          }
+        }
+        for (var j = 0; j < comitem.length; j++) {
+          var siglist = comitem[j].item.filter(o => o.sub_cat == 'single');
+          for (var k = 0; k < siglist[j].length; k++) {
+            for (var p = 0; p < sigitem[k].option.length; p++) {
+              if (sigitem[k].option[p].related_sub != "") {
+                this.getInitrelateSubSaveItem(list, sigitem[k].option[p].related_sub);
+              }
+            }
+          }
+        }
+      }
+    },
+    // 根据关联ID 变量list 
+    getInitrelateSubSaveItem(list, relatedsub) {
+      var sublist = this.data.relateSub;
+      var isplit = relatedsub.trim().split(',');
+      for (var i = 0; i < isplit.length; i++) {
+        for (var k = 0; k < list.length; k++) {
+          //模块ID关联
+          if (list[k].id == isplit[i]) {
+            var ckRelateId = sublist.filter(o => o.id == list[k].id);
+            if (ckRelateId.length == 0) {
+              sublist.push({
+                "id": list[k].id,
+                "serial_number": serial_number,
+                "model": "mollist"
+              });
+            }
+          }
+          //模块的Item 关联
+          for (var j = 0; j < list[k].item.length; j++) {
+            if (list[k].item[j].id == isplit[i]) {
+              var ckRelateId = sublist.filter(o => o.id == list[k].item[j].id);
+              if (ckRelateId.length == 0) {
+                sublist.push({
+                  "id": list[k].item[j].id,
+                  "serial_number": list[k].id + "_" + list[k].item[j].id,
+                  "model": "molitem"
+                });
+              }
+            }
 
+            //模块的综合题关联
+            var comitem = list[k].item.filter(o => o.sub_cat == 'comprehensive');
+            for (var ik = 0; ik < comitem.length; ik++) {
+              for (var iq = 0; iq < comitem[ik].item.length; iq++) {
+                if (comitem[ik].item[iq].id == isplit[i]) {
+                  var ckRelateId = sublist.filter(o => o.id == comitem[ik].item[iq].id);
+                  if (ckRelateId.length == 0) {
+                    sublist.push({
+                      "id": comitem[ik].item[iq].id,
+                      "serial_number": list[k].id + "_" + comitem[ik].item[iq].pid + "_" + comitem[ik].item[iq].id,
+                      "model": "molcom"
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      this.setData({
+        relateSub: sublist
+      });
+    },
+    itemResult: function(mode, modelItem, AnserList, related) { //modelItem= mm.item
       for (var k = 0; k < modelItem.length; k++) {
         modelItem[k].serial_number = parseInt(modelItem[k].serial_number);
         if (this.data.quecont == 1) {
           modelItem[k].result = '';
         }
         if (modelItem[k].sub_cat == "single") {
+          var sublist = this.data.relateSub;
           for (var q = 0; q < modelItem[k].option.length; q++) {
-            if (modelItem[k].option[q].related_sub != "0" && modelItem[k].option[q].related_sub != "") {
-              var sublist = this.data.relateSub;
-              var optionRelated = modelItem[k].option[q].related_sub.trim().split(',');
-              for (var opk = 0; opk < optionRelated.length; opk++) {
-                var ckRelateId = sublist.filter(o => o.id == optionRelated[opk]);
-                if (ckRelateId.length == 0 && (modelItem.filter(o => o.id == optionRelated[opk]).length > 0 || mode.filter(o => o.id == optionRelated[opk]).length > 0 )){
-                  sublist.push({
-                    "id": optionRelated[opk],
-                    "serial_number": modelItem.filter(o => o.id == optionRelated[opk]).length > 0 ? modelItem.filter(o => o.id == optionRelated[opk])[0].serial_number : mode.filter(o => o.id == optionRelated[opk])[0].serial_number,
-                    "model": mode.filter(o => o.id == optionRelated[opk]).length > 0 && mode.filter(o => o.id == optionRelated[opk])[0].pid==this.data.uid?"moDel":"moItem"
-                  });
-                }
-              }
-              this.setData({
-                relateSub: sublist
-              });
-            }
+            // if (modelItem[k].option[q].related_sub != "0" && modelItem[k].option[q].related_sub != "") {
+            //   var optionRelated = modelItem[k].option[q].related_sub.trim().split(',');
+            //   for (var opk = 0; opk < optionRelated.length; opk++) {
+            //     var ckRelateId = sublist.filter(o => o.id == optionRelated[opk]);
+            //     if (ckRelateId.length == 0 && (modelItem.filter(o => o.id == optionRelated[opk]).length > 0 || mode.filter(o => o.id == optionRelated[opk]).length > 0)) {
+            //       sublist.push({
+            //         "id": optionRelated[opk],
+            //         "serial_number": modelItem.filter(o => o.id == optionRelated[opk]).length > 0 ? modelItem.filter(o => o.id == optionRelated[opk])[0].serial_number : mode.filter(o => o.id == optionRelated[opk])[0].serial_number,
+            //         "model": mode.filter(o => o.id == optionRelated[opk]).length > 0 && mode.filter(o => o.id == optionRelated[opk])[0].pid == this.data.uid ? "moDel" : "moItem"
+            //       });
+            //     }
+            //     //综合题下面的隐藏记住
+            //     var compreList = modelItem.filter(o => o.sub_cat == "comprehensive");
+            //     for (var kk = 0; kk < compreList.length; kk++) {
+            //       for (var jj = 0; jj < compreList[kk].item.length; jj++) {
+            //         if (ckRelateId.length == 0 && compreList[kk].item[jj].id == optionRelated[opk]) {
+            //           sublist.push({
+            //             "id": optionRelated[opk],
+            //             "serial_number": compreList[kk].id + "_" + compreList[kk].item[jj].id,
+            //             "model": "mocom"
+            //           });
+            //         }
+            //       }
+            //     }
+            //   }
+            // }
             if (modelItem[k].result) {
               var df = "0";
               var res = modelItem[k].result;
@@ -1080,7 +1213,9 @@ Page(Object.assign({
                 })
               }
             }
-
+            this.setData({
+              relateSub: sublist
+            });
           }
           this.setData({
             answerList: AnserList
