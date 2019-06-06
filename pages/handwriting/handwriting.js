@@ -14,7 +14,7 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function(options) {
+  onLoad: function (options) {
     this.setData({
       itemId: options.itemId || 0
     });
@@ -66,7 +66,7 @@ Page({
     wx.canvasToTempFilePath({
       canvasId: 'handWriting',
       fileType: 'jpg',
-      success: function(res) {
+      success: function (res) {
         // wx.saveImageToPhotosAlbum({
         //   filePath: res.tempFilePath,
         //   success(res) {
@@ -95,7 +95,7 @@ Page({
             var resultUrl = "";
             try {
               resultUrl = "https://ffcmc.cn" + res.data.data.uploadPath;
-            } catch (error) {} finally {
+            } catch (error) { } finally {
               resultUrl = "https://ffcmc.cn" + JSON.parse(res.data).data.uploadPath;
             }
             var upLoadUrlInfo = wx.getStorageSync("upLoadUrlInfo") || {};
@@ -103,7 +103,7 @@ Page({
             wx.setStorageSync("upLoadUrlInfo", upLoadUrlInfo);
             wx.navigateBack();
           },
-          fail: function() {
+          fail: function () {
             wx.hideLoading()
           }
         })

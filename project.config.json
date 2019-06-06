@@ -12,12 +12,14 @@
 	},
 	"compileType": "miniprogram",
 	"libVersion": "2.3.0",
-	"appid": "wxc80a0f494793af50",
-	"projectname": "questionnaire",
+	"appid": "wx16014e2dc085961f",
+	"projectname": "FANS",
 	"debugOptions": {
 		"hidedInDevtools": []
 	},
 	"isGameTourist": false,
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
 	"condition": {
 		"search": {
 			"current": -1,

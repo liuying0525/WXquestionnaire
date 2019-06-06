@@ -27,7 +27,7 @@
         <view class='bigitem_content {{item.isShow==true?"":"itemhidden"}}' wx:for="{{item.item}}" wx:for-item="oitem" wx:for-index="oindex" wx:key="{{oitem}}" id="list{{oitem.id}}">
           <view class='smallitem'>
             <!-- <i wx:if="{{!!oitem.is_must&&oitem.is_must!='0'}}">*</i> -->
-            <text class="{{!!oitem.is_must&&oitem.is_must!='0'?'itemmust':''}}">{{oindex+1}}.{{oitem.title}}</text>
+            <text class="{{!!oitem.is_must&&oitem.is_must!='0'?'itemmust':''}}">{{oitem.orderName}}.{{oitem.title}}</text>
             <block wx:if="{{oitem.sub_cat=='single'}}">
               <radio-group class="radio-group" bindchange="radioChange" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{oitem.id}}">
                 <label class="radio" wx:for="{{oitem.option}}" wx:for-item="oitemo" wx:key="{{oitemo}}">
@@ -125,7 +125,7 @@
               <view class='bigitem_content' wx:if="{{oitem.item.length!=0}}" wx:for="{{oitem.item}}" wx:for-item="mitem" wx:for-index="mindex" wx:key="{{mitem}}" id="list{{mitem.id}}">
                 <view class='smallitem'>
                   <i wx:if="{{!!mitem.is_must&&mitem.is_must!='0'}}">*</i>
-                  <text>{{mindex+1}}){{mitem.title}}</text>
+                  <text>{{mitem.serial_number}}){{mitem.title}}</text>
                   <block wx:if="{{mitem.sub_cat=='fill'}}">
                     <!-- <input placeholder="{{mitem.title}}" value="{{mitem.result}}" data-id="{{mitem.id}}" bindinput="inputgetValue" /> -->
                        <input placeholder="" value="{{mitem.result}}" data-id="{{mitem.id}}" bindinput="inputgetValue" />
@@ -159,7 +159,7 @@
               </input>
               </block>
                     <button bindtap='btnchoose' type='primary' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}">获取当前位置</button>
-                  </block>
+             </block>
                   <block wx:if="{{mitem.sub_cat=='uploadimg'}}">
                     <view>
                       <block wx:for="{{mitem.imgListObj}}" wx:for-index="imgindex" wx:for-item="imgitem" wx:key="{{imgitem}}">
@@ -173,7 +173,7 @@
                             <view class='cropper' wx:if="{{imgitem.upsrc.length>0 && imgitem.src.length==0 }}">
                               <cropper data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bind:getCropperImg="getCropperImg" url="{{imgitem.upsrc}}" ratio="{{ ratio }}"></cropper>
                             </view>
-                            <view class='show-image-view' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bindtap="chooseImage">
+                            <view class='show-image-view' data-mindex="{{mindex}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}" data-id="{{mitem.id}}" data-imgindex="{{imgindex}}" bindtap="chooseImage" bindlongpress="deleteImage">
                               <image class="show-image" mode="aspectFitf" src="{{imgitem.upsrc||imgitem.src}}">
                               </image>
                             </view>
@@ -196,6 +196,18 @@
                       </block>
                     </view>
                   </block>
+         <block wx:if="{{mitem.sub_cat=='signature'}}">
+              <view class='signature'>
+                <block wx:if="{{!mitem.result}}">
+                  <button bindtap="signshow" class='uploadsignbtn' data-id="{{mitem.id}}">点击我签名</button>
+                </block>
+                <block wx:else>
+                <view class='routateimg'>
+                  <image wx:if="{{mitem.result}}" src="{{mitem.result||''}}" data-lindex="{{lindex}}" data-oindex="{{oindex}}"  data-mindex="{{mindex}}" data-id="{{mitem.id}}" data-src="{{mitem.result}}" bindtap="chooseSignImage" bindlongpress="deleteSignImage"></image> </view>
+                </block>
+              </view>
+            </block>
+
                 </view>
 
               </view>

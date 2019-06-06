@@ -27,9 +27,11 @@ class Handwriting {
   startY = 0;
   deltaY = 0;
   startValue = 0;
+  phoneSys = wx.getSystemInfoSync().system.indexOf("Android") != -1 ? "White" :"#1A1A1A";
   constructor(pageContext, opts) {
     this.page = pageContext
-    this.lineColor = opts.lineColor || '#1A1A1A' // 颜色
+    this.lineColor = opts.lineColor || this.phoneSys // 颜色
+    // debugger
     this.slideValue = opts.slideValue || 50
 
     this.init()
@@ -42,7 +44,6 @@ class Handwriting {
     this.ctx = wx.createCanvasContext(this.canvasName)
     var query = wx.createSelectorQuery();
     query.select('.handCenter').boundingClientRect(rect => {
-      console.log(rect)
       this.canvasWidth = rect.width;
       this.canvasHeight = rect.height;
     }).exec();
@@ -51,7 +52,6 @@ class Handwriting {
 
   // 笔迹开始
   uploadScaleStart(e) {
-    console.log(e.touches[0])
     if (e.type != 'touchstart') return false;
     this.ctx.setFillStyle(this.lineColor); // 初始线条设置颜色
     this.ctx.setGlobalAlpha(this.transparent); // 设置半透明
@@ -233,6 +233,8 @@ class Handwriting {
         let a = this.ctaCalc(point[0].x, point[0].y, point[0].r, point[1].x, point[1].y, point[1].r, point[2].x, point[2].y, point[2].r);
         a[0].color = this.lineColor;
         this.bethelDraw(a, 1);
+        
+        
         point = [{
           x: x,
           y: y,
@@ -321,16 +323,23 @@ class Handwriting {
     }
     return a;
   }
+
   bethelDraw(point, is_fill, color) {
     this.ctx.beginPath();
     this.ctx.moveTo(point[0].mx, point[0].my);
-    if (undefined != color) {
-      this.ctx.setFillStyle(color);
-      this.ctx.setStrokeStyle(color);
-    } else {
-      this.ctx.setFillStyle(point[0].color);
-      this.ctx.setStrokeStyle(point[0].color);
-    }
+    // if (undefined != color) { 
+    //     this.ctx.setFillStyle(color);
+    //   if (!!this.phoneSys) {
+    //     this.ctx.setFillStyle("White");
+    //   } 
+    //     this.ctx.setStrokeStyle(color);
+ 
+    // } else {     
+        // this.ctx.setFillStyle(point[0].color);   
+        this.ctx.setFillStyle(color);  
+        this.ctx.setStrokeStyle(color);
+      
+    // }
     for (let i = 1; i < point.length; i++) {
       this.ctx.bezierCurveTo(point[i].c1x, point[i].c1y, point[i].c2x, point[i].c2y, point[i].ex, point[i].ey);
     }

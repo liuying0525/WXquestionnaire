@@ -122,11 +122,9 @@ Component({
       wx.getImageInfo({
         src: url,
         success(resopne) {
-          debugger
           console.log(resopne);
           let innerAspectRadio = resopne.width / resopne.height;
           if (resopne.width > 500 || resopne.height > 500) {
-            debugger
             _this.data.width = 250;
 
           }

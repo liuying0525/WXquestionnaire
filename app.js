@@ -1,6 +1,12 @@
 App({
   onShow: function() {
     var _this = this;
+    wx.getSystemInfo({
+      success: (res) => {
+        this.globalData.system=res;
+      }
+    })
+
     if (wx.getStorageSync("userOpenid")) {
       wx.login({
         success: (tdata) => {
@@ -103,5 +109,6 @@ App({
     userInfo: null,
     userOpenid: "",
     currentTab:0,
+    system:{}
   }
 })　　　　

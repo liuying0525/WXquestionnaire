@@ -228,7 +228,8 @@ page {
 
 picker {
   border: 1px solid  #ebebeb;
-  padding:0 1%;
+ padding:3rpx 8%;
+
   position: relative;
   min-width: 20%;
   margin-right:2%;
@@ -263,18 +264,22 @@ right:3rpx;
 .multistage {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: wrap;
+ justify-content:space-around;
+
 }
 .signature{
   height:200rpx;
+  background: #fff;
 }
 .routateimg{
   height:600rpx;
 width:200rpx;
 transform:translate(200rpx,-200rpx) rotate(270deg);
+background:#fff;
 }
 .routateimg image{
   height:100%;
   width: 100%;
+  background:#fff;
+
 }

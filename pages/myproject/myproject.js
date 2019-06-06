@@ -60,6 +60,7 @@ Page({
     var _this=this;
 
     this.getData(msg).then(data => {
+      
       _this.setData({
         sendList: _this.data.sendList.concat(data)
       });
